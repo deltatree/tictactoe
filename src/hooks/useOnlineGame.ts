@@ -31,6 +31,9 @@ export function useOnlineGame(
 ): UseOnlineGameReturn {
   const { emit, on, off, socket } = useWebSocket();
 
+  // If no gameId, we're not in an online game yet - return early with defaults
+  const isActive = Boolean(gameId);
+
   const [board, setBoard] = useState<Cell[]>(Array(9).fill(null));
   const [currentPlayer, setCurrentPlayer] = useState<'X' | 'O'>('X');
   const [gameStatus, setGameStatus] = useState<'playing' | 'won' | 'draw'>('playing');
@@ -40,8 +43,10 @@ export function useOnlineGame(
 
   const isYourTurn = currentPlayer === yourSymbol;
 
-  // Handle game updates from server
+  // Handle game updates from server - only if we have an active game
   useEffect(() => {
+    if (!isActive) return;
+    
     const handleGameUpdate = (data: {
       gameState: {
         board: Cell[];
@@ -123,10 +128,12 @@ export function useOnlineGame(
       off('chat-message', handleChatMessage);
       off('error', handleError);
     };
-  }, [on, off, yourSymbol, opponentName, socket]);
+  }, [on, off, yourSymbol, opponentName, socket, isActive]);
 
-  // Handle cell click
+  // Handle cell click - only if we have an active game
   const handleCellClick = useCallback((index: number) => {
+    if (!isActive) return;
+    
     // Can only make move if it's your turn and game is still playing
     if (!isYourTurn || gameStatus !== 'playing') {
       return;
@@ -139,20 +146,22 @@ export function useOnlineGame(
 
     console.log('Making move:', { gameId, position: index });
     emit('make-move', { gameId, position: index });
-  }, [isYourTurn, gameStatus, board, emit, gameId]);
+  }, [isYourTurn, gameStatus, board, emit, gameId, isActive]);
 
-  // Leave game (disconnect)
+  // Leave game (disconnect) - only if active
   const leaveGame = useCallback(() => {
+    if (!isActive) return;
     console.log('Leaving game:', gameId);
     // The server will handle cleanup on disconnect
     // We'll just reset the UI in the parent component
-  }, [gameId]);
+  }, [gameId, isActive]);
 
-  // Send chat message
+  // Send chat message - only if active
   const sendChatMessage = useCallback((messageId: string) => {
+    if (!isActive) return;
     console.log('Sending chat message:', messageId);
     emit('send-message', { gameId, messageId });
-  }, [emit, gameId]);
+  }, [emit, gameId, isActive]);
 
   return {
     gameId,

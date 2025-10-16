@@ -137,14 +137,16 @@ export function Game() {
     changeGameMode('ai'); // Return to AI mode
   };
 
-  // Use online game hook if we have online game data
-  const onlineGame = onlineGameData
-    ? useOnlineGame(
-        onlineGameData.gameId,
-        onlineGameData.yourSymbol,
-        onlineGameData.opponentName
-      )
-    : null;
+  // Use online game hook - ALWAYS call hooks unconditionally!
+  // Pass null values when not in online game, hook will handle it
+  const onlineGame = useOnlineGame(
+    onlineGameData?.gameId || '',
+    onlineGameData?.yourSymbol || 'X',
+    onlineGameData?.opponentName || ''
+  );
+
+  // Only use online game data if we actually have a game
+  const activeOnlineGame = onlineGameData ? onlineGame : null;
 
   return (
     <div className="game-container">
@@ -194,35 +196,35 @@ export function Game() {
           )}
 
           {/* Use online game state if playing online, otherwise use local game state */}
-          {onlineGame ? (
+          {activeOnlineGame ? (
             <>
               <GameStatus
-                gameStatus={onlineGame.gameStatus}
-                currentPlayer={onlineGame.currentPlayer}
-                winner={onlineGame.winner}
+                gameStatus={activeOnlineGame.gameStatus}
+                currentPlayer={activeOnlineGame.currentPlayer}
+                winner={activeOnlineGame.winner}
                 isAIThinking={false}
                 gameMode="online"
-                player1Name={onlineGame.yourSymbol === 'X' ? 'Du' : onlineGame.opponentName}
-                player2Name={onlineGame.yourSymbol === 'O' ? 'Du' : onlineGame.opponentName}
+                player1Name={activeOnlineGame.yourSymbol === 'X' ? 'Du' : activeOnlineGame.opponentName}
+                player2Name={activeOnlineGame.yourSymbol === 'O' ? 'Du' : activeOnlineGame.opponentName}
               />
 
               <div className="online-game-info">
                 <p className="turn-indicator">
-                  {onlineGame.isYourTurn ? (
-                    <span className="your-turn">🟢 Dein Zug ({onlineGame.yourSymbol})</span>
+                  {activeOnlineGame.isYourTurn ? (
+                    <span className="your-turn">🟢 Dein Zug ({activeOnlineGame.yourSymbol})</span>
                   ) : (
-                    <span className="opponent-turn">🔴 {onlineGame.opponentName} ist dran</span>
+                    <span className="opponent-turn">🔴 {activeOnlineGame.opponentName} ist dran</span>
                   )}
                 </p>
               </div>
 
               <Board 
-                board={onlineGame.board} 
-                winningLine={onlineGame.winningLine} 
-                onCellClick={onlineGame.handleCellClick}
+                board={activeOnlineGame.board} 
+                winningLine={activeOnlineGame.winningLine} 
+                onCellClick={activeOnlineGame.handleCellClick}
               />
 
-              {onlineGame.gameStatus !== 'playing' && (
+              {activeOnlineGame.gameStatus !== 'playing' && (
                 <button className="new-game-button" onClick={handleLeaveOnlineGame}>
                   ← Zurück zum Hauptmenü
                 </button>
@@ -230,8 +232,8 @@ export function Game() {
 
               {/* Quick Chat for online games */}
               <QuickChat
-                messages={onlineGame.chatMessages}
-                onSendMessage={onlineGame.sendChatMessage}
+                messages={activeOnlineGame.chatMessages}
+                onSendMessage={activeOnlineGame.sendChatMessage}
                 isOnlineGame={true}
               />
             </>
