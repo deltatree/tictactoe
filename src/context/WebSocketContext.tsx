@@ -24,15 +24,27 @@ interface WebSocketProviderProps {
   serverUrl?: string;
 }
 
+// Determine server URL outside component to avoid re-renders
+const getDefaultServerUrl = (): string => {
+  // Environment variable takes precedence
+  if (import.meta.env.VITE_SERVER_URL) {
+    return import.meta.env.VITE_SERVER_URL;
+  }
+  
+  // In development (Vite dev server), use explicit backend port
+  if (typeof window !== 'undefined' && 
+      window.location.hostname === 'localhost' && 
+      window.location.port === '5173') {
+    return 'http://localhost:3001';
+  }
+  
+  // In production (Docker with nginx proxy), use same origin
+  return typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001';
+};
+
 export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ 
   children,
-  serverUrl = import.meta.env.VITE_SERVER_URL || (
-    // In production (Docker), use same origin via nginx proxy
-    // In development, use explicit localhost:3001
-    window.location.hostname === 'localhost' && window.location.port === '5173'
-      ? 'http://localhost:3001'
-      : window.location.origin
-  )
+  serverUrl = getDefaultServerUrl()
 }) => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('disconnected');
