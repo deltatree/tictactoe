@@ -4,9 +4,61 @@
   box-sizing: border-box;
 }
 
+/* CSS Variables for Themes */
+:root {
+  --bg-gradient-start: #ffecd2;
+  --bg-gradient-end: #fcb69f;
+  --text-primary: #1f2937;
+  --text-secondary: #666;
+  --primary-color: #8B5CF6;
+  --secondary-color: #EC4899;
+  --board-bg: #ffffff;
+  --cell-border: #e5e7eb;
+  --cell-hover: rgba(139, 92, 246, 0.1);
+}
+
+/* Dark Theme */
+body[data-theme="dark"] {
+  --bg-gradient-start: #1a1a2e;
+  --bg-gradient-end: #16213e;
+  --text-primary: #e5e7eb;
+  --text-secondary: #9ca3af;
+  --primary-color: #8B5CF6;
+  --secondary-color: #EC4899;
+  --board-bg: #2d3748;
+  --cell-border: #4a5568;
+  --cell-hover: rgba(139, 92, 246, 0.2);
+}
+
+/* Ocean Theme */
+body[data-theme="ocean"] {
+  --bg-gradient-start: #0093E9;
+  --bg-gradient-end: #80D0C7;
+  --text-primary: #1f2937;
+  --text-secondary: #2c5f6f;
+  --primary-color: #06b6d4;
+  --secondary-color: #3b82f6;
+  --board-bg: #f0fdfa;
+  --cell-border: #99f6e4;
+  --cell-hover: rgba(6, 182, 212, 0.1);
+}
+
+/* Forest Theme */
+body[data-theme="forest"] {
+  --bg-gradient-start: #4CAF50;
+  --bg-gradient-end: #81C784;
+  --text-primary: #1b4332;
+  --text-secondary: #2d6a4f;
+  --primary-color: #2d6a4f;
+  --secondary-color: #52b788;
+  --board-bg: #f1faee;
+  --cell-border: #95d5b2;
+  --cell-hover: rgba(45, 106, 79, 0.1);
+}
+
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+  background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -14,6 +66,8 @@ body {
   user-select: none;
   overflow-x: hidden;
   width: 100%;
+  color: var(--text-primary);
+  transition: background 0.5s ease, color 0.3s ease;
 }
 
 button {

@@ -1,4 +1,4 @@
-import type { GameStatus as GameStatusType, Player } from '../types/game.types';
+import type { GameStatus as GameStatusType, Player, GameMode } from '../types/game.types';
 import './GameStatus.css';
 
 interface GameStatusProps {
@@ -6,19 +6,49 @@ interface GameStatusProps {
   currentPlayer: Player;
   winner: Player | null;
   isAIThinking: boolean;
+  gameMode?: GameMode;
+  player1Name?: string;
+  player2Name?: string;
 }
 
-export function GameStatus({ gameStatus, currentPlayer, winner, isAIThinking }: GameStatusProps) {
+export function GameStatus({ 
+  gameStatus, 
+  currentPlayer, 
+  winner, 
+  isAIThinking,
+  gameMode = 'ai',
+  player1Name = '',
+  player2Name = ''
+}: GameStatusProps) {
+  const getPlayerName = (player: Player) => {
+    if (gameMode === 'local-2p') {
+      return player === 'X' 
+        ? (player1Name || 'Spieler 1') 
+        : (player2Name || 'Spieler 2');
+    }
+    return player === 'X' ? 'Du' : 'Computer';
+  };
+
   const getStatusMessage = () => {
     if (gameStatus === 'won') {
+      if (gameMode === 'local-2p') {
+        const winnerName = winner === 'X' ? getPlayerName('X') : getPlayerName('O');
+        return `🎉 ${winnerName} hat gewonnen! 🎉`;
+      }
       if (winner === 'X') {
-        return '🎉 Du hast gewonnen! ��';
+        return '🎉 Du hast gewonnen! 🎉';
       }
       return '🤖 Computer hat gewonnen!';
     }
 
     if (gameStatus === 'draw') {
       return '🤝 Unentschieden!';
+    }
+
+    if (gameMode === 'local-2p') {
+      const currentName = getPlayerName(currentPlayer);
+      const symbol = currentPlayer === 'X' ? '✖️' : '⭕';
+      return `${symbol} ${currentName} ist dran!`;
     }
 
     if (isAIThinking) {

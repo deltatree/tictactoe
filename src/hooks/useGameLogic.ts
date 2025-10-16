@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import confetti from 'canvas-confetti';
-import type { Cell, Difficulty, GameStatus, Player } from '../types/game.types';
+import type { Cell, Difficulty, GameStatus, Player, GameMode } from '../types/game.types';
 import { checkWinner, createEmptyBoard } from '../utils/gameLogic';
 import { getAIMove } from '../utils/aiPlayer';
 import { soundEffects } from '../utils/sounds';
@@ -13,6 +13,11 @@ export function useGameLogic() {
   const [winningLine, setWinningLine] = useState<number[] | null>(null);
   const [difficulty, setDifficulty] = useState<Difficulty>('medium');
   const [isAIThinking, setIsAIThinking] = useState(false);
+  
+  // 2-Player mode support
+  const [gameMode, setGameMode] = useState<GameMode>('ai');
+  const [player1Name, setPlayer1Name] = useState<string>('');
+  const [player2Name, setPlayer2Name] = useState<string>('');
   
   // Statistics tracking (persisted in localStorage)
   const [stats, setStats] = useState(() => {
@@ -123,33 +128,38 @@ export function useGameLogic() {
   }, [difficulty, checkGameOver]);
 
   const handleCellClick = useCallback((index: number) => {
-    // Ignore clicks if game is over, cell is occupied, AI is thinking, or it's not player's turn
-    if (
-      gameStatus !== 'playing' ||
-      board[index] !== null ||
-      isAIThinking ||
-      currentPlayer !== 'X'
-    ) {
+    // Ignore clicks if game is over or cell is occupied
+    if (gameStatus !== 'playing' || board[index] !== null) {
+      return;
+    }
+
+    // For AI mode: ignore if AI is thinking or not player's turn
+    if (gameMode === 'ai' && (isAIThinking || currentPlayer !== 'X')) {
       return;
     }
 
     // Play click sound
     soundEffects.playClick();
 
-    // Player makes move
+    // Make move
     const newBoard = [...board];
-    newBoard[index] = 'X';
+    newBoard[index] = currentPlayer;
     setBoard(newBoard);
 
-    // Check if player won or draw
+    // Check if game over
     if (checkGameOver(newBoard)) {
       return;
     }
 
-    // AI's turn
-    setCurrentPlayer('O');
-    makeAIMove(newBoard);
-  }, [board, currentPlayer, gameStatus, isAIThinking, checkGameOver, makeAIMove]);
+    // Switch player
+    const nextPlayer: Player = currentPlayer === 'X' ? 'O' : 'X';
+    setCurrentPlayer(nextPlayer);
+
+    // AI mode: let AI play
+    if (gameMode === 'ai' && nextPlayer === 'O') {
+      makeAIMove(newBoard);
+    }
+  }, [board, currentPlayer, gameStatus, isAIThinking, checkGameOver, makeAIMove, gameMode]);
 
   const resetGame = useCallback(() => {
     setBoard(createEmptyBoard());
@@ -171,6 +181,11 @@ export function useGameLogic() {
     localStorage.setItem('tictactoe-stats', JSON.stringify(emptyStats));
   }, []);
 
+  const changeGameMode = useCallback((mode: GameMode) => {
+    setGameMode(mode);
+    resetGame();
+  }, [resetGame]);
+
   return {
     board,
     currentPlayer,
@@ -180,9 +195,15 @@ export function useGameLogic() {
     difficulty,
     isAIThinking,
     stats,
+    gameMode,
+    player1Name,
+    player2Name,
     handleCellClick,
     resetGame,
     changeDifficulty,
     resetStats,
+    changeGameMode,
+    setPlayer1Name,
+    setPlayer2Name,
   };
 }

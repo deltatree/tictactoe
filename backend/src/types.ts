@@ -1,17 +1,20 @@
 export type Player = 'X' | 'O';
 export type Cell = Player | null;
-export type GameStatus = 'playing' | 'won' | 'draw';
-export type Difficulty = 'easy' | 'medium' | 'hard';
-export type GameMode = 'ai' | 'local-2p' | 'online';
+export type GameStatus = 'waiting' | 'playing' | 'won' | 'draw' | 'abandoned';
 
 export interface GameState {
+  id: string;
   board: Cell[];
   currentPlayer: Player;
-  gameStatus: GameStatus;
+  status: GameStatus;
   winner: Player | null;
   winningLine: number[] | null;
-  difficulty: Difficulty;
-  moveHistory: Move[];
+  players: {
+    X: string; // socket ID
+    O: string; // socket ID
+  };
+  createdAt: number;
+  lastMoveAt: number;
 }
 
 export interface Move {

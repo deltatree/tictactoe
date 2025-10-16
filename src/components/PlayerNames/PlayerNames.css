@@ -1,0 +1,142 @@
+.player-names {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.edit-names-button {
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.edit-names-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+.names-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+}
+
+.name-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.name-input-group label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.player-icon {
+  font-size: 18px;
+}
+
+.name-input-group input {
+  padding: 12px 16px;
+  font-size: 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.name-input-group input:focus {
+  outline: none;
+  border-color: #8B5CF6;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+.done-button {
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 8px;
+}
+
+.done-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.3);
+}
+
+.current-names {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.player-tag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  font-size: 14px;
+  color: #1f2937;
+}
+
+.vs {
+  font-weight: 800;
+  color: #8B5CF6;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .names-inputs {
+    padding: 16px;
+    max-width: 100%;
+  }
+
+  .name-input-group input {
+    font-size: 14px;
+    padding: 10px 12px;
+  }
+
+  .current-names {
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px 16px;
+  }
+
+  .player-tag {
+    font-size: 13px;
+  }
+
+  .vs {
+    font-size: 11px;
+  }
+}
