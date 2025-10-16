@@ -124,6 +124,48 @@
   }
 }
 
+/* Online Game Styles */
+.online-game-info {
+  width: 100%;
+  max-width: 400px;
+  margin: 10px 0;
+}
+
+.turn-indicator {
+  text-align: center;
+  font-size: 18px;
+  font-weight: 600;
+  padding: 12px 24px;
+  border-radius: 12px;
+  margin: 0;
+}
+
+.your-turn {
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.1);
+  padding: 8px 16px;
+  border-radius: 8px;
+  display: inline-block;
+  animation: pulse 2s infinite;
+}
+
+.opponent-turn {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+  padding: 8px 16px;
+  border-radius: 8px;
+  display: inline-block;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
 /* Very small mobile devices */
 @media (max-width: 375px) {
   .game-container {

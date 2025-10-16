@@ -10,6 +10,7 @@ import { ThemeSelector, type Theme } from './ThemeSelector/ThemeSelector';
 import ConnectionStatus from './ConnectionStatus/ConnectionStatus';
 import Matchmaking from './Matchmaking/Matchmaking';
 import { useGameLogic } from '../hooks/useGameLogic';
+import { useOnlineGame } from '../hooks/useOnlineGame';
 import { soundEffects } from '../utils/sounds';
 import { useWebSocket } from '../context/WebSocketContext';
 import './Game.css';
@@ -119,13 +120,26 @@ export function Game() {
     console.log('Match found!', data);
     setOnlineGameData(data);
     setIsInMatchmaking(false);
-    // TODO: Story 2.5 - Start online game with this data
   };
 
   const handleMatchmakingCancel = () => {
     setIsInMatchmaking(false);
     changeGameMode('ai'); // Return to AI mode
   };
+
+  const handleLeaveOnlineGame = () => {
+    setOnlineGameData(null);
+    changeGameMode('ai'); // Return to AI mode
+  };
+
+  // Use online game hook if we have online game data
+  const onlineGame = onlineGameData
+    ? useOnlineGame(
+        onlineGameData.gameId,
+        onlineGameData.yourSymbol,
+        onlineGameData.opponentName
+      )
+    : null;
 
   return (
     <div className="game-container">
@@ -157,38 +171,77 @@ export function Game() {
             disabled={false}
           />
 
-      {gameMode === 'local-2p' && (
-        <PlayerNames
-          player1Name={player1Name}
-          player2Name={player2Name}
-          onPlayer1NameChange={setPlayer1Name}
-          onPlayer2NameChange={setPlayer2Name}
-        />
-      )}
+          {gameMode === 'local-2p' && (
+            <PlayerNames
+              player1Name={player1Name}
+              player2Name={player2Name}
+              onPlayer1NameChange={setPlayer1Name}
+              onPlayer2NameChange={setPlayer2Name}
+            />
+          )}
 
-      {gameMode === 'ai' && (
-        <DifficultySelector
-          currentDifficulty={difficulty}
-          onDifficultyChange={changeDifficulty}
-          disabled={gameStatus !== 'playing' && gameStatus !== 'draw' && gameStatus !== 'won'}
-        />
-      )}
+          {gameMode === 'ai' && (
+            <DifficultySelector
+              currentDifficulty={difficulty}
+              onDifficultyChange={changeDifficulty}
+              disabled={gameStatus !== 'playing' && gameStatus !== 'draw' && gameStatus !== 'won'}
+            />
+          )}
 
-      <GameStatus
-        gameStatus={gameStatus}
-        currentPlayer={currentPlayer}
-        winner={winner}
-        isAIThinking={isAIThinking}
-        gameMode={gameMode}
-        player1Name={player1Name}
-        player2Name={player2Name}
-      />
+          {/* Use online game state if playing online, otherwise use local game state */}
+          {onlineGame ? (
+            <>
+              <GameStatus
+                gameStatus={onlineGame.gameStatus}
+                currentPlayer={onlineGame.currentPlayer}
+                winner={onlineGame.winner}
+                isAIThinking={false}
+                gameMode="online"
+                player1Name={onlineGame.yourSymbol === 'X' ? 'Du' : onlineGame.opponentName}
+                player2Name={onlineGame.yourSymbol === 'O' ? 'Du' : onlineGame.opponentName}
+              />
 
-          <Board board={board} winningLine={winningLine} onCellClick={handleCellClick} />
+              <div className="online-game-info">
+                <p className="turn-indicator">
+                  {onlineGame.isYourTurn ? (
+                    <span className="your-turn">🟢 Dein Zug ({onlineGame.yourSymbol})</span>
+                  ) : (
+                    <span className="opponent-turn">🔴 {onlineGame.opponentName} ist dran</span>
+                  )}
+                </p>
+              </div>
 
-          <button className="new-game-button" onClick={resetGame}>
-            🔄 Neues Spiel
-          </button>
+              <Board 
+                board={onlineGame.board} 
+                winningLine={onlineGame.winningLine} 
+                onCellClick={onlineGame.handleCellClick}
+              />
+
+              {onlineGame.gameStatus !== 'playing' && (
+                <button className="new-game-button" onClick={handleLeaveOnlineGame}>
+                  ← Zurück zum Hauptmenü
+                </button>
+              )}
+            </>
+          ) : (
+            <>
+              <GameStatus
+                gameStatus={gameStatus}
+                currentPlayer={currentPlayer}
+                winner={winner}
+                isAIThinking={isAIThinking}
+                gameMode={gameMode}
+                player1Name={player1Name}
+                player2Name={player2Name}
+              />
+
+              <Board board={board} winningLine={winningLine} onCellClick={handleCellClick} />
+
+              <button className="new-game-button" onClick={resetGame}>
+                🔄 Neues Spiel
+              </button>
+            </>
+          )}
 
           <div className="settings-section">
             <VolumeControl
