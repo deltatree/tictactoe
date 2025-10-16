@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useWebSocket } from '../context/WebSocketContext';
 import type { Cell } from '../types/game.types';
+import type { ChatMessage } from '../types/chat.types';
+import { QUICK_MESSAGES } from '../types/chat.types';
 import { soundEffects } from '../utils/sounds';
 
 interface OnlineGameState {
@@ -13,11 +15,13 @@ interface OnlineGameState {
   winner: 'X' | 'O' | null;
   winningLine: number[] | null;
   isYourTurn: boolean;
+  chatMessages: ChatMessage[];
 }
 
 interface UseOnlineGameReturn extends OnlineGameState {
   handleCellClick: (index: number) => void;
   leaveGame: () => void;
+  sendChatMessage: (messageId: string) => void;
 }
 
 export function useOnlineGame(
@@ -25,13 +29,14 @@ export function useOnlineGame(
   yourSymbol: 'X' | 'O',
   opponentName: string
 ): UseOnlineGameReturn {
-  const { emit, on, off } = useWebSocket();
+  const { emit, on, off, socket } = useWebSocket();
 
   const [board, setBoard] = useState<Cell[]>(Array(9).fill(null));
   const [currentPlayer, setCurrentPlayer] = useState<'X' | 'O'>('X');
   const [gameStatus, setGameStatus] = useState<'playing' | 'won' | 'draw'>('playing');
   const [winner, setWinner] = useState<'X' | 'O' | null>(null);
   const [winningLine, setWinningLine] = useState<number[] | null>(null);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
 
   const isYourTurn = currentPlayer === yourSymbol;
 
@@ -70,6 +75,27 @@ export function useOnlineGame(
       }
     };
 
+    const handleChatMessage = (data: {
+      messageId: string;
+      sender: string;
+      timestamp: number;
+    }) => {
+      console.log('Chat message received:', data);
+      
+      const message = QUICK_MESSAGES.find(m => m.id === data.messageId);
+      if (!message) return;
+
+      const newMessage: ChatMessage = {
+        id: `${data.timestamp}-${data.sender}`,
+        sender: data.sender === socket?.id ? 'you' : 'opponent',
+        messageId: data.messageId,
+        text: message.text,
+        timestamp: data.timestamp,
+      };
+
+      setChatMessages((prev) => [...prev, newMessage].slice(-10)); // Keep last 10 messages
+    };
+
     const handlePlayerDisconnected = (data: {
       gameState: {
         status: string;
@@ -88,14 +114,16 @@ export function useOnlineGame(
 
     on('game-update', handleGameUpdate);
     on('player-disconnected', handlePlayerDisconnected);
+    on('chat-message', handleChatMessage);
     on('error', handleError);
 
     return () => {
       off('game-update', handleGameUpdate);
       off('player-disconnected', handlePlayerDisconnected);
+      off('chat-message', handleChatMessage);
       off('error', handleError);
     };
-  }, [on, off, yourSymbol, opponentName]);
+  }, [on, off, yourSymbol, opponentName, socket]);
 
   // Handle cell click
   const handleCellClick = useCallback((index: number) => {
@@ -120,6 +148,12 @@ export function useOnlineGame(
     // We'll just reset the UI in the parent component
   }, [gameId]);
 
+  // Send chat message
+  const sendChatMessage = useCallback((messageId: string) => {
+    console.log('Sending chat message:', messageId);
+    emit('send-message', { gameId, messageId });
+  }, [emit, gameId]);
+
   return {
     gameId,
     board,
@@ -130,7 +164,9 @@ export function useOnlineGame(
     winner,
     winningLine,
     isYourTurn,
+    chatMessages,
     handleCellClick,
     leaveGame,
+    sendChatMessage,
   };
 }

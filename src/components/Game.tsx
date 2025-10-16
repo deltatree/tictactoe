@@ -11,6 +11,7 @@ import ConnectionStatus from './ConnectionStatus/ConnectionStatus';
 import Matchmaking from './Matchmaking/Matchmaking';
 import GameHistory from './GameHistory/GameHistory';
 import Achievements from './Achievements/Achievements';
+import QuickChat from './QuickChat/QuickChat';
 import { useGameLogic } from '../hooks/useGameLogic';
 import { useOnlineGame } from '../hooks/useOnlineGame';
 import { useEnhancedStats } from '../hooks/useEnhancedStats';
@@ -226,6 +227,13 @@ export function Game() {
                   ← Zurück zum Hauptmenü
                 </button>
               )}
+
+              {/* Quick Chat for online games */}
+              <QuickChat
+                messages={onlineGame.chatMessages}
+                onSendMessage={onlineGame.sendChatMessage}
+                isOnlineGame={true}
+              />
             </>
           ) : (
             <>

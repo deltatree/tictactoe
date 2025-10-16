@@ -27,3 +27,10 @@ export interface WinResult {
   winner: Player | 'draw' | null;
   line: number[] | null;
 }
+
+export interface ChatMessage {
+  id: string;
+  sender: string; // socket ID
+  messageId: string;
+  timestamp: number;
+}

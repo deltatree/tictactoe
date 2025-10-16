@@ -66,6 +66,28 @@ export function setupSocketHandlers(
       });
     });
 
+    // Send chat message
+    socket.on('send-message', (data: { gameId: string; messageId: string }) => {
+      const game = gameManager.getGame(data.gameId);
+      if (!game) {
+        socket.emit('error', { message: 'Game not found' });
+        return;
+      }
+
+      // Verify player is in this game
+      if (!game.hasPlayer(socket.id)) {
+        socket.emit('error', { message: 'Not in this game' });
+        return;
+      }
+
+      // Broadcast message to game room (both players)
+      io.to(data.gameId).emit('chat-message', {
+        messageId: data.messageId,
+        sender: socket.id,
+        timestamp: Date.now(),
+      });
+    });
+
     // Make a move
     socket.on('make-move', (data: { gameId: string; position: number }) => {
       const game = gameManager.getGame(data.gameId);
