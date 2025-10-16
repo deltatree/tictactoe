@@ -93,12 +93,30 @@ jobs:
           echo "**Registry:** ${{ env.REGISTRY }}" >> $GITHUB_STEP_SUMMARY
           echo "**Image:** ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 📦 Available Tags:" >> $GITHUB_STEP_SUMMARY
+          echo "### 📦 Image Contents:" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ **Frontend** (React + Vite) served by nginx on port 80" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ **Backend** (Node.js + Socket.IO) on port 3000" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ **Supervisor** managing both services" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🏷️ Available Tags:" >> $GITHUB_STEP_SUMMARY
           echo "- \`${{ steps.version.outputs.version }}\`" >> $GITHUB_STEP_SUMMARY
           echo "- \`latest\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### 🐳 Pull and Run:" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+          echo "# Pull the image" >> $GITHUB_STEP_SUMMARY
           echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
-          echo "docker run -p 80:80 ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "# Run the full-stack application" >> $GITHUB_STEP_SUMMARY
+          echo "docker run -d -p 80:80 -p 3000:3000 \\\\" >> $GITHUB_STEP_SUMMARY
+          echo "  --name testme \\\\" >> $GITHUB_STEP_SUMMARY
+          echo "  ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "# Or use docker-compose" >> $GITHUB_STEP_SUMMARY
+          echo "docker-compose up -d" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🌐 Access:" >> $GITHUB_STEP_SUMMARY
+          echo "- Frontend: http://localhost" >> $GITHUB_STEP_SUMMARY
+          echo "- Backend API: http://localhost:3000/api/health" >> $GITHUB_STEP_SUMMARY
+          echo "- WebSocket: ws://localhost:3000" >> $GITHUB_STEP_SUMMARY

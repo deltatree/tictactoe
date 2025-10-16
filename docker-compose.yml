@@ -1,0 +1,26 @@
+# Docker Compose for local development and testing
+version: '3.8'
+
+services:
+  # Full-stack application (frontend + backend in one container)
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"      # Frontend (nginx)
+      - "3000:3000"  # Backend (Socket.IO)
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+
+networks:
+  default:
+    name: testme-network
