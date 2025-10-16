@@ -11,13 +11,20 @@ interface MatchmakingProps {
     opponentSymbol: 'X' | 'O';
   }) => void;
   onCancel: () => void;
+  onNameConfirmed?: () => void;
 }
 
-const Matchmaking: React.FC<MatchmakingProps> = ({ playerName, onMatchFound, onCancel }) => {
+const Matchmaking: React.FC<MatchmakingProps> = ({ playerName, onMatchFound, onCancel, onNameConfirmed }) => {
   const { emit, on, off, isConnected } = useWebSocket();
   const [playersOnline, setPlayersOnline] = useState<number>(0);
   const [waitingTime, setWaitingTime] = useState<number>(0);
   const [countdown, setCountdown] = useState<number | null>(null);
+  const [matchData, setMatchData] = useState<{
+    gameId: string;
+    opponent: { name: string };
+    yourSymbol: 'X' | 'O';
+  } | null>(null);
+  const [waitingForConfirmation, setWaitingForConfirmation] = useState<boolean>(false);
 
   useEffect(() => {
     if (!isConnected) {
@@ -36,24 +43,9 @@ const Matchmaking: React.FC<MatchmakingProps> = ({ playerName, onMatchFound, onC
     }) => {
       console.log('Matchmaking: Game found!', data);
       
-      // Start countdown
-      let countdownValue = 3;
-      setCountdown(countdownValue);
-      
-      const countdownInterval = setInterval(() => {
-        countdownValue--;
-        setCountdown(countdownValue);
-        
-        if (countdownValue === 0) {
-          clearInterval(countdownInterval);
-          onMatchFound({
-            gameId: data.gameId,
-            opponentName: data.opponent.name,
-            yourSymbol: data.yourSymbol,
-            opponentSymbol: data.yourSymbol === 'X' ? 'O' : 'X'
-          });
-        }
-      }, 1000);
+      // Store match data and wait for user confirmation
+      setMatchData(data);
+      setWaitingForConfirmation(true);
     };
 
     // Listen for queue stats updates
@@ -92,12 +84,42 @@ const Matchmaking: React.FC<MatchmakingProps> = ({ playerName, onMatchFound, onC
     onCancel();
   };
 
+  const handleConfirmName = () => {
+    if (!matchData) return;
+    
+    console.log('Matchmaking: Name confirmed, starting game...');
+    if (onNameConfirmed) {
+      onNameConfirmed();
+    }
+    
+    // Start countdown after confirmation
+    let countdownValue = 3;
+    setCountdown(countdownValue);
+    setWaitingForConfirmation(false);
+    
+    const countdownInterval = setInterval(() => {
+      countdownValue--;
+      setCountdown(countdownValue);
+      
+      if (countdownValue === 0) {
+        clearInterval(countdownInterval);
+        onMatchFound({
+          gameId: matchData.gameId,
+          opponentName: matchData.opponent.name,
+          yourSymbol: matchData.yourSymbol,
+          opponentSymbol: matchData.yourSymbol === 'X' ? 'O' : 'X'
+        });
+      }
+    }, 1000);
+  };
+
   const formatTime = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
+  // Countdown screen (after confirmation)
   if (countdown !== null) {
     return (
       <div className="matchmaking-container">
@@ -110,6 +132,37 @@ const Matchmaking: React.FC<MatchmakingProps> = ({ playerName, onMatchFound, onC
     );
   }
 
+  // Waiting for name confirmation (match found but need to confirm name)
+  if (waitingForConfirmation && matchData) {
+    return (
+      <div className="matchmaking-container">
+        <div className="matchmaking-card match-found">
+          <div className="match-found-icon">🎉</div>
+          <h2>Gegner gefunden!</h2>
+          <p className="opponent-name">Gegen: {matchData.opponent.name}</p>
+          
+          <div className="name-confirmation">
+            <p className="confirmation-text">
+              Spielst du als: <strong>{playerName}</strong>?
+            </p>
+            <div className="confirmation-buttons">
+              <button className="confirm-button" onClick={handleConfirmName}>
+                ✓ Bestätigen
+              </button>
+              <button className="cancel-button" onClick={handleCancel}>
+                ✕ Abbrechen
+              </button>
+            </div>
+            <p className="hint-text">
+              💡 Dein Gegner wartet! Falls du deinen Namen ändern möchtest, drücke "Abbrechen" und setze deinen Alias neu.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Searching screen
   return (
     <div className="matchmaking-container">
       <div className="matchmaking-card">

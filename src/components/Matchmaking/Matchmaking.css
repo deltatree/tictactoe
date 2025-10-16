@@ -261,3 +261,85 @@ body[data-theme="dark"] .matchmaking-tips {
   background: rgba(59, 130, 246, 0.1);
   border-color: rgba(59, 130, 246, 0.3);
 }
+
+/* Name Confirmation UI */
+.opponent-name {
+  font-size: 20px;
+  color: var(--text-color, #333);
+  margin: 16px 0;
+  font-weight: 600;
+}
+
+.name-confirmation {
+  margin-top: 32px;
+}
+
+.confirmation-text {
+  font-size: 18px;
+  color: var(--text-color, #333);
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+
+.confirmation-text strong {
+  color: var(--primary-color, #3b82f6);
+  font-weight: 700;
+}
+
+.confirmation-buttons {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.confirm-button {
+  background: var(--success-color, #10b981);
+  color: white;
+  border: none;
+  padding: 14px 32px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex: 1;
+  max-width: 200px;
+}
+
+.confirm-button:hover {
+  background: var(--success-dark, #059669);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.confirm-button:active {
+  transform: translateY(0);
+}
+
+.name-confirmation .cancel-button {
+  flex: 1;
+  margin-top: 0;
+}
+
+.hint-text {
+  font-size: 13px;
+  color: var(--text-secondary, #666);
+  margin-top: 16px;
+  line-height: 1.5;
+  padding: 12px;
+  background: var(--warning-light, rgba(245, 158, 11, 0.1));
+  border-radius: 8px;
+  border: 1px solid var(--warning-border, rgba(245, 158, 11, 0.2));
+}
+
+/* Dark theme for confirmation */
+body[data-theme="dark"] .confirmation-text,
+body[data-theme="dark"] .opponent-name {
+  color: var(--text-color, #fff);
+}
+
+body[data-theme="dark"] .hint-text {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: rgba(245, 158, 11, 0.3);
+}
