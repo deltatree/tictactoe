@@ -29,7 +29,12 @@ export class MatchmakingQueue {
     }
   }
 
-  public findMatch(): { player1: string; player2: string } | null {
+  public findMatch(): { 
+    player1: string; 
+    player2: string; 
+    player1Name?: string; 
+    player2Name?: string; 
+  } | null {
     if (this.queue.length < 2) {
       return null;
     }
@@ -43,6 +48,8 @@ export class MatchmakingQueue {
     return {
       player1: player1.socketId,
       player2: player2.socketId,
+      player1Name: player1.playerName,
+      player2Name: player2.playerName,
     };
   }
 

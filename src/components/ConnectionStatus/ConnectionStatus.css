@@ -1,0 +1,107 @@
+.connection-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.connection-icon {
+  font-size: 12px;
+  animation: pulse 2s infinite;
+}
+
+.connection-text {
+  font-size: 13px;
+  letter-spacing: 0.3px;
+}
+
+/* Connected state */
+.connection-status.connected {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--success-color, #10b981);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.connection-status.connected .connection-icon {
+  animation: none;
+}
+
+/* Connecting/Reconnecting states */
+.connection-status.connecting,
+.connection-status.reconnecting {
+  background: rgba(251, 191, 36, 0.15);
+  color: var(--warning-color, #f59e0b);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+.connection-status.connecting .connection-icon,
+.connection-status.reconnecting .connection-icon {
+  animation: pulse 1s infinite;
+}
+
+/* Disconnected state */
+.connection-status.disconnected {
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--error-color, #ef4444);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.connection-status.disconnected .connection-icon {
+  animation: none;
+}
+
+/* Pulse animation */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .connection-status {
+    top: 10px;
+    right: 10px;
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  .connection-icon {
+    font-size: 10px;
+  }
+
+  .connection-text {
+    font-size: 11px;
+  }
+}
+
+/* Dark theme adjustments */
+body[data-theme="dark"] .connection-status {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+body[data-theme="dark"] .connection-status.connected {
+  background: rgba(16, 185, 129, 0.2);
+}
+
+body[data-theme="dark"] .connection-status.connecting,
+body[data-theme="dark"] .connection-status.reconnecting {
+  background: rgba(251, 191, 36, 0.2);
+}
+
+body[data-theme="dark"] .connection-status.disconnected {
+  background: rgba(239, 68, 68, 0.2);
+}

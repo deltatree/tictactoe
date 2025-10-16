@@ -26,15 +26,21 @@ export function setupSocketHandlers(
         // Notify both players
         io.to(match.player1).emit('game-found', {
           gameId: gameState.id,
-          role: 'X',
-          opponent: match.player2,
+          yourSymbol: 'X',
+          opponent: {
+            id: match.player2,
+            name: match.player2Name || 'Anonymous'
+          },
           gameState,
         });
 
         io.to(match.player2).emit('game-found', {
           gameId: gameState.id,
-          role: 'O',
-          opponent: match.player1,
+          yourSymbol: 'O',
+          opponent: {
+            id: match.player1,
+            name: match.player1Name || 'Anonymous'
+          },
           gameState,
         });
 
@@ -51,6 +57,13 @@ export function setupSocketHandlers(
     socket.on('leave-queue', () => {
       matchmakingQueue.removePlayer(socket.id);
       io.emit('queue-update', { queueSize: matchmakingQueue.getQueueSize() });
+    });
+
+    // Get queue stats
+    socket.on('get-queue-stats', () => {
+      socket.emit('queue-stats', {
+        playersInQueue: matchmakingQueue.getQueueSize()
+      });
     });
 
     // Make a move

@@ -1,0 +1,263 @@
+.matchmaking-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+  padding: 20px;
+}
+
+.matchmaking-card {
+  background: var(--card-bg, rgba(255, 255, 255, 0.95));
+  border-radius: 24px;
+  padding: 48px 40px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  max-width: 500px;
+  width: 100%;
+  text-align: center;
+  animation: slideIn 0.4s ease-out;
+}
+
+.matchmaking-card h2 {
+  margin: 0 0 24px 0;
+  font-size: 28px;
+  color: var(--text-color, #333);
+  font-weight: 700;
+}
+
+.player-info {
+  margin-bottom: 32px;
+  padding: 12px 20px;
+  background: var(--primary-light, rgba(59, 130, 246, 0.1));
+  border-radius: 12px;
+  display: inline-block;
+}
+
+.player-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--primary-color, #3b82f6);
+}
+
+/* Searching Animation */
+.searching-animation {
+  margin: 40px 0;
+}
+
+.spinner {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--primary-color, #3b82f6);
+  animation: bounce 1.4s infinite ease-in-out;
+}
+
+.dot-1 {
+  animation-delay: -0.32s;
+}
+
+.dot-2 {
+  animation-delay: -0.16s;
+}
+
+.dot-3 {
+  animation-delay: 0s;
+}
+
+@keyframes bounce {
+  0%, 80%, 100% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+}
+
+.searching-text {
+  font-size: 18px;
+  color: var(--text-secondary, #666);
+  margin: 0;
+  font-weight: 500;
+}
+
+/* Matchmaking Stats */
+.matchmaking-stats {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  margin: 32px 0;
+  padding: 24px;
+  background: var(--secondary-bg, rgba(0, 0, 0, 0.03));
+  border-radius: 16px;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.stat-icon {
+  font-size: 32px;
+}
+
+.stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--primary-color, #3b82f6);
+}
+
+.stat-label {
+  font-size: 12px;
+  color: var(--text-secondary, #666);
+  text-align: center;
+  line-height: 1.4;
+}
+
+/* Cancel Button */
+.cancel-button {
+  background: var(--error-color, #ef4444);
+  color: white;
+  border: none;
+  padding: 14px 32px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 16px;
+  width: 100%;
+  max-width: 200px;
+}
+
+.cancel-button:hover {
+  background: var(--error-dark, #dc2626);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.cancel-button:active {
+  transform: translateY(0);
+}
+
+/* Tips */
+.matchmaking-tips {
+  margin-top: 24px;
+  padding: 16px;
+  background: var(--info-light, rgba(59, 130, 246, 0.05));
+  border-radius: 12px;
+  border: 1px solid var(--info-border, rgba(59, 130, 246, 0.2));
+}
+
+.tip {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-secondary, #666);
+  line-height: 1.6;
+}
+
+/* Match Found State */
+.matchmaking-card.match-found {
+  background: linear-gradient(135deg, 
+    var(--success-light, rgba(16, 185, 129, 0.1)) 0%, 
+    var(--primary-light, rgba(59, 130, 246, 0.1)) 100%);
+  border: 2px solid var(--success-color, #10b981);
+}
+
+.match-found-icon {
+  font-size: 80px;
+  margin-bottom: 24px;
+  animation: celebrate 0.6s ease-out;
+}
+
+@keyframes celebrate {
+  0% {
+    transform: scale(0) rotate(-180deg);
+  }
+  50% {
+    transform: scale(1.2) rotate(10deg);
+  }
+  100% {
+    transform: scale(1) rotate(0);
+  }
+}
+
+.match-countdown {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--primary-color, #3b82f6);
+  margin: 16px 0 0 0;
+  animation: pulse 1s infinite;
+}
+
+/* Slide in animation */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .matchmaking-card {
+    padding: 32px 24px;
+  }
+
+  .matchmaking-card h2 {
+    font-size: 24px;
+  }
+
+  .matchmaking-stats {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .stat {
+    flex-direction: row;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .stat-icon {
+    font-size: 24px;
+  }
+
+  .stat-value {
+    font-size: 20px;
+  }
+
+  .stat-label {
+    text-align: left;
+    flex: 1;
+  }
+}
+
+/* Dark theme adjustments */
+body[data-theme="dark"] .matchmaking-card {
+  background: rgba(30, 30, 30, 0.95);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+body[data-theme="dark"] .matchmaking-stats {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+body[data-theme="dark"] .matchmaking-tips {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: rgba(59, 130, 246, 0.3);
+}
