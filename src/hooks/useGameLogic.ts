@@ -5,7 +5,12 @@ import { checkWinner, createEmptyBoard } from '../utils/gameLogic';
 import { getAIMove } from '../utils/aiPlayer';
 import { soundEffects } from '../utils/sounds';
 
-export function useGameLogic() {
+interface UseGameLogicProps {
+  onGameEnd?: (result: { winner: Player | 'draw'; player1: string; player2: string }) => void;
+}
+
+export function useGameLogic(props?: UseGameLogicProps) {
+  const { onGameEnd } = props || {};
   const [board, setBoard] = useState<Cell[]>(createEmptyBoard());
   const [currentPlayer, setCurrentPlayer] = useState<Player>('X');
   const [gameStatus, setGameStatus] = useState<GameStatus>('playing');
@@ -76,6 +81,15 @@ export function useGameLogic() {
         const newStats = { ...stats, draws: stats.draws + 1 };
         setStats(newStats);
         localStorage.setItem('tictactoe-stats', JSON.stringify(newStats));
+        
+        // Trigger enhanced stats update
+        if (onGameEnd) {
+          onGameEnd({
+            winner: 'draw',
+            player1: gameMode === 'ai' ? 'Du' : player1Name || 'Spieler 1',
+            player2: gameMode === 'ai' ? 'Computer' : player2Name || 'Spieler 2',
+          });
+        }
       } else {
         setGameStatus('won');
         setWinner(result.winner);
@@ -94,12 +108,21 @@ export function useGameLogic() {
         } else {
           soundEffects.playDefeat();
         }
+        
+        // Trigger enhanced stats update
+        if (onGameEnd) {
+          onGameEnd({
+            winner: result.winner,
+            player1: gameMode === 'ai' ? 'Du' : player1Name || 'Spieler 1',
+            player2: gameMode === 'ai' ? 'Computer' : player2Name || 'Spieler 2',
+          });
+        }
       }
       return true;
     }
     
     return false;
-  }, [stats]);
+  }, [stats, onGameEnd, gameMode, player1Name, player2Name]);
 
   const makeAIMove = useCallback((currentBoard: Cell[]) => {
     setIsAIThinking(true);

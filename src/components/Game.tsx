@@ -20,6 +20,12 @@ import { useWebSocket } from '../context/WebSocketContext';
 import './Game.css';
 
 export function Game() {
+  const { connect, isConnected } = useWebSocket();
+
+  // Enhanced stats and history
+  const { stats: enhancedStats, history, recordGame, resetStats: resetEnhancedStats } = useEnhancedStats();
+
+  // Game logic with stats callback
   const {
     board,
     currentPlayer,
@@ -37,12 +43,30 @@ export function Game() {
     changeGameMode,
     setPlayer1Name,
     setPlayer2Name,
-  } = useGameLogic();
-
-  const { connect, isConnected } = useWebSocket();
-
-  // Enhanced stats and history
-  const { stats: enhancedStats, history, recordGame: _recordGame, resetStats: resetEnhancedStats } = useEnhancedStats();
+  } = useGameLogic({
+    onGameEnd: (result) => {
+      // Adapter: Convert useGameLogic format to recordGame format
+      const { winner, player2 } = result;
+      
+      // Determine result from player's perspective (always player1)
+      let gameResult: 'win' | 'loss' | 'draw';
+      if (winner === 'draw') {
+        gameResult = 'draw';
+      } else if (winner === 'X') {
+        gameResult = 'win';  // Player is always X
+      } else {
+        gameResult = 'loss'; // O means opponent won
+      }
+      
+      recordGame(
+        gameMode,
+        gameResult,
+        player2, // Opponent name
+        'X',     // Player is always X
+        'O'      // Opponent is always O
+      );
+    },
+  });
 
   // Volume state
   const [volume, setVolume] = useState<number>(soundEffects.getVolume());
