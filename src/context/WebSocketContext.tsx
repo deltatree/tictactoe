@@ -35,7 +35,7 @@ const getDefaultServerUrl = (): string => {
   if (typeof window !== 'undefined' && 
       window.location.hostname === 'localhost' && 
       window.location.port === '5173') {
-    return 'http://localhost:3001';
+    return 'http://localhost:3001';  // Backend development port
   }
   
   // In production (Docker with nginx proxy), use same origin
