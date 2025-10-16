@@ -9,8 +9,11 @@ import { PlayerNames } from './PlayerNames/PlayerNames';
 import { ThemeSelector, type Theme } from './ThemeSelector/ThemeSelector';
 import ConnectionStatus from './ConnectionStatus/ConnectionStatus';
 import Matchmaking from './Matchmaking/Matchmaking';
+import GameHistory from './GameHistory/GameHistory';
+import Achievements from './Achievements/Achievements';
 import { useGameLogic } from '../hooks/useGameLogic';
 import { useOnlineGame } from '../hooks/useOnlineGame';
+import { useEnhancedStats } from '../hooks/useEnhancedStats';
 import { soundEffects } from '../utils/sounds';
 import { useWebSocket } from '../context/WebSocketContext';
 import './Game.css';
@@ -24,20 +27,21 @@ export function Game() {
     winningLine,
     difficulty,
     isAIThinking,
-    stats,
     gameMode,
     player1Name,
     player2Name,
     handleCellClick,
     resetGame,
     changeDifficulty,
-    resetStats,
     changeGameMode,
     setPlayer1Name,
     setPlayer2Name,
   } = useGameLogic();
 
   const { connect, isConnected } = useWebSocket();
+
+  // Enhanced stats and history
+  const { stats: enhancedStats, history, recordGame: _recordGame, resetStats: resetEnhancedStats } = useEnhancedStats();
 
   // Volume state
   const [volume, setVolume] = useState<number>(soundEffects.getVolume());
@@ -252,7 +256,11 @@ export function Game() {
             />
           </div>
 
-          <Statistics stats={stats} onReset={resetStats} />
+          <Statistics stats={enhancedStats} onReset={resetEnhancedStats} />
+
+          <GameHistory history={history} />
+
+          <Achievements achievements={enhancedStats.achievements} />
 
           <ThemeSelector currentTheme={theme} onThemeChange={setTheme} />
         </>

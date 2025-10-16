@@ -24,3 +24,51 @@ export interface WinResult {
   winner: Player | 'draw' | null;
   line: number[] | null;
 }
+
+// Enhanced Statistics Types
+export interface GameModeStats {
+  wins: number;
+  losses: number;
+  draws: number;
+  gamesPlayed: number;
+}
+
+export interface EnhancedStats {
+  // Per-mode stats
+  ai: GameModeStats;
+  'local-2p': GameModeStats;
+  online: GameModeStats;
+  
+  // Overall stats
+  totalWins: number;
+  totalLosses: number;
+  totalDraws: number;
+  totalGames: number;
+  
+  // Streaks
+  currentWinStreak: number;
+  longestWinStreak: number;
+  
+  // Achievements
+  achievements: Achievement[];
+}
+
+export interface Achievement {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  unlocked: boolean;
+  unlockedAt?: number;
+}
+
+export interface GameHistoryEntry {
+  id: string;
+  mode: GameMode;
+  result: 'win' | 'loss' | 'draw';
+  opponent: string;
+  playerSymbol: Player;
+  opponentSymbol: Player;
+  date: number;
+  duration?: number; // in seconds
+}

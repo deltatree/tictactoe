@@ -1,0 +1,220 @@
+.game-history {
+  width: 100%;
+  max-width: 500px;
+  margin: 20px 0;
+  background: var(--card-bg, rgba(255, 255, 255, 0.95));
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.game-history h3 {
+  margin: 0 0 20px 0;
+  font-size: 24px;
+  color: var(--text-color, #333);
+  text-align: center;
+}
+
+.no-history,
+.no-results {
+  text-align: center;
+  color: var(--text-secondary, #666);
+  font-size: 16px;
+  padding: 20px;
+}
+
+/* Filters */
+.history-filters {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.filter-btn {
+  padding: 8px 16px;
+  border: 2px solid var(--border-color, #e0e0e0);
+  background: white;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: var(--text-color, #333);
+}
+
+.filter-btn:hover {
+  border-color: var(--primary-color, #3b82f6);
+  background: var(--primary-light, rgba(59, 130, 246, 0.1));
+}
+
+.filter-btn.active {
+  background: var(--primary-color, #3b82f6);
+  color: white;
+  border-color: var(--primary-color, #3b82f6);
+}
+
+/* History List */
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.history-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.history-list::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 10px;
+}
+
+.history-list::-webkit-scrollbar-thumb {
+  background: var(--primary-color, #3b82f6);
+  border-radius: 10px;
+}
+
+/* History Item */
+.history-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.02);
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.history-item:hover {
+  transform: translateX(4px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.history-item.result-win {
+  border-color: rgba(16, 185, 129, 0.3);
+  background: rgba(16, 185, 129, 0.05);
+}
+
+.history-item.result-loss {
+  border-color: rgba(239, 68, 68, 0.3);
+  background: rgba(239, 68, 68, 0.05);
+}
+
+.history-item.result-draw {
+  border-color: rgba(251, 191, 36, 0.3);
+  background: rgba(251, 191, 36, 0.05);
+}
+
+.history-icon {
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.history-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.history-mode {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-color, #333);
+}
+
+.history-result {
+  font-size: 13px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.result-win .history-result {
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.15);
+}
+
+.result-loss .history-result {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.15);
+}
+
+.result-draw .history-result {
+  color: #f59e0b;
+  background: rgba(251, 191, 36, 0.15);
+}
+
+.history-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: var(--text-secondary, #666);
+}
+
+.history-opponent {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.history-date {
+  flex-shrink: 0;
+  margin-left: 8px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .game-history {
+    padding: 16px;
+  }
+
+  .game-history h3 {
+    font-size: 20px;
+  }
+
+  .filter-btn {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+
+  .history-item {
+    padding: 10px;
+  }
+
+  .history-icon {
+    font-size: 24px;
+  }
+}
+
+/* Dark theme */
+body[data-theme="dark"] .game-history {
+  background: rgba(30, 30, 30, 0.95);
+}
+
+body[data-theme="dark"] .filter-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+body[data-theme="dark"] .filter-btn:hover {
+  background: rgba(59, 130, 246, 0.2);
+}
+
+body[data-theme="dark"] .history-item {
+  background: rgba(255, 255, 255, 0.03);
+}
