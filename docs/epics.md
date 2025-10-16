@@ -55,12 +55,12 @@ Spieler können nicht nur gegen die KI spielen, sondern auch lokal oder online g
 **Status:** 🚀 IN PROGRESS (Started: 2025-10-16)
 **Target Release:** v02.00.00 (Mid-November 2025)
 
-**Progress:** 0/8 Stories Complete (0%)
+**Progress:** 1/8 Stories Complete (12.5%) 🎉
 
 | Story | Title | Status | Priority | Effort | Week |
 |-------|-------|--------|----------|--------|------|
-| 2.1 | Sound Volume Controls | 🚀 In Progress | High | 1 Tag | Week 6 |
-| 2.2 | 2-Player Local Mode | ⏳ Planned | High | 2 Tage | Week 6 |
+| 2.1 | Sound Volume Controls | ✅ Done | High | 1 Tag | Week 6 |
+| 2.2 | 2-Player Local Mode | 🚀 In Progress | High | 2 Tage | Week 6 |
 | 2.3 | Backend & WebSocket Infrastructure | ⏳ Planned | High | 3-4 Tage | Week 7 |
 | 2.4 | Online Matchmaking System | ⏳ Planned | High | 2-3 Tage | Week 7 |
 | 2.5 | Real-time Online Gameplay | ⏳ Planned | High | 3-4 Tage | Week 8 |

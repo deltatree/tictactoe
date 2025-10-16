@@ -208,11 +208,11 @@ src/
 
 ```
 Epic 2: Enhanced Features & Online Multiplayer
-Progress: 0/8 Stories (0%)
+Progress: 1/8 Stories (12.5%) 🎉
 
 Phase 1 (Basic Enhancements):
-  [🚀] Story 2.1: Sound Volume Controls       (IN PROGRESS)
-  [ ] Story 2.2: 2-Player Local Mode
+  [✅] Story 2.1: Sound Volume Controls       (COMPLETE - 16.10.2025)
+  [🚀] Story 2.2: 2-Player Local Mode         (IN PROGRESS)
 
 Phase 2 (Backend Infrastructure):
   [ ] Story 2.3: Backend & WebSocket
