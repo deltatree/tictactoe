@@ -166,6 +166,116 @@
   }
 }
 
+/* Rematch UI */
+.online-game-end-actions {
+  width: 100%;
+  max-width: 500px;
+  margin-top: 20px;
+}
+
+.rematch-button {
+  padding: 15px 30px;
+  font-size: 18px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  margin-right: 10px;
+}
+
+.rematch-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+}
+
+.leave-button {
+  padding: 15px 30px;
+  font-size: 18px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
+}
+
+.leave-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(107, 114, 128, 0.4);
+}
+
+.rematch-waiting,
+.rematch-request,
+.rematch-declined {
+  text-align: center;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  margin: 10px 0;
+}
+
+.rematch-waiting p,
+.rematch-declined p {
+  font-size: 16px;
+  margin-bottom: 15px;
+  color: var(--text-color);
+}
+
+.rematch-message {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: var(--text-color);
+}
+
+.rematch-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.accept-button {
+  padding: 12px 30px;
+  font-size: 16px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.accept-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+}
+
+.decline-button {
+  padding: 12px 30px;
+  font-size: 16px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.decline-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
+}
+
 /* Very small mobile devices */
 @media (max-width: 375px) {
   .game-container {
@@ -183,5 +293,15 @@
   .new-game-button {
     padding: 10px 20px;
     font-size: 15px;
+  }
+  
+  .rematch-button,
+  .leave-button {
+    padding: 12px 20px;
+    font-size: 16px;
+  }
+  
+  .rematch-buttons {
+    flex-direction: column;
   }
 }

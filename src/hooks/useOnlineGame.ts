@@ -22,6 +22,11 @@ interface UseOnlineGameReturn extends OnlineGameState {
   handleCellClick: (index: number) => void;
   leaveGame: () => void;
   sendChatMessage: (messageId: string) => void;
+  requestRematch: (playerName: string) => void;
+  acceptRematch: (playerName: string) => void;
+  declineRematch: () => void;
+  rematchStatus: 'none' | 'requested' | 'pending' | 'accepted' | 'declined';
+  rematchRequesterName: string | null;
 }
 
 export function useOnlineGame(
@@ -40,6 +45,9 @@ export function useOnlineGame(
   const [winner, setWinner] = useState<'X' | 'O' | null>(null);
   const [winningLine, setWinningLine] = useState<number[] | null>(null);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [rematchStatus, setRematchStatus] = useState<'none' | 'requested' | 'pending' | 'accepted' | 'declined'>('none');
+  const [rematchRequesterName, setRematchRequesterName] = useState<string | null>(null);
+  const [rematchRequesterId, setRematchRequesterId] = useState<string | null>(null);
 
   const isYourTurn = currentPlayer === yourSymbol;
 
@@ -163,6 +171,80 @@ export function useOnlineGame(
     emit('send-message', { gameId, messageId });
   }, [emit, gameId, isActive]);
 
+  // Request rematch - only if active
+  const requestRematch = useCallback((playerName: string) => {
+    if (!isActive) return;
+    console.log('Requesting rematch:', gameId, playerName);
+    emit('request-rematch', { gameId, playerName });
+    setRematchStatus('requested');
+  }, [emit, gameId, isActive]);
+
+  // Accept rematch - only if active
+  const acceptRematch = useCallback((playerName: string) => {
+    if (!isActive || !rematchRequesterId) return;
+    console.log('Accepting rematch:', gameId, rematchRequesterId, playerName);
+    emit('accept-rematch', {
+      gameId,
+      requesterId: rematchRequesterId,
+      playerName,
+      requesterName: rematchRequesterName || 'Anonymous',
+    });
+  }, [emit, gameId, rematchRequesterId, rematchRequesterName, isActive]);
+
+  // Decline rematch - only if active
+  const declineRematch = useCallback(() => {
+    if (!isActive || !rematchRequesterId) return;
+    console.log('Declining rematch:', rematchRequesterId);
+    emit('decline-rematch', {
+      requesterId: rematchRequesterId,
+    });
+    setRematchStatus('none');
+    setRematchRequesterName(null);
+    setRematchRequesterId(null);
+  }, [emit, rematchRequesterId, isActive]);
+
+  // Handle rematch events
+  useEffect(() => {
+    if (!isActive) return;
+
+    const handleRematchRequest = (data: {
+      requesterId: string;
+      requesterName: string;
+      gameId: string;
+    }) => {
+      console.log('Rematch request received:', data);
+      setRematchStatus('pending');
+      setRematchRequesterName(data.requesterName);
+      setRematchRequesterId(data.requesterId);
+    };
+
+    const handleRematchAccepted = (data: {
+      gameId: string;
+      yourSymbol: 'X' | 'O';
+      opponent: { name: string };
+    }) => {
+      console.log('Rematch accepted:', data);
+      setRematchStatus('accepted');
+      // Game will be restarted by parent component
+    };
+
+    const handleRematchDeclined = (data: { message: string }) => {
+      console.log('Rematch declined:', data);
+      setRematchStatus('declined');
+      alert(data.message);
+    };
+
+    on('rematch-request', handleRematchRequest);
+    on('rematch-accepted', handleRematchAccepted);
+    on('rematch-declined', handleRematchDeclined);
+
+    return () => {
+      off('rematch-request', handleRematchRequest);
+      off('rematch-accepted', handleRematchAccepted);
+      off('rematch-declined', handleRematchDeclined);
+    };
+  }, [on, off, isActive]);
+
   return {
     gameId,
     board,
@@ -177,5 +259,10 @@ export function useOnlineGame(
     handleCellClick,
     leaveGame,
     sendChatMessage,
+    requestRematch,
+    acceptRematch,
+    declineRematch,
+    rematchStatus,
+    rematchRequesterName,
   };
 }

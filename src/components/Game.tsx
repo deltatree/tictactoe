@@ -21,7 +21,7 @@ import { useWebSocket } from '../context/WebSocketContext';
 import './Game.css';
 
 export function Game() {
-  const { connect, isConnected } = useWebSocket();
+  const { connect, isConnected, on, off } = useWebSocket();
 
   // Enhanced stats and history
   const { stats: enhancedStats, history, recordGame, resetStats: resetEnhancedStats } = useEnhancedStats();
@@ -168,6 +168,46 @@ export function Game() {
     changeGameMode('ai'); // Return to AI mode
   };
 
+  const handleRematchRequest = () => {
+    if (!activeOnlineGame) return;
+    activeOnlineGame.requestRematch(playerAlias);
+  };
+
+  const handleRematchAccept = () => {
+    if (!activeOnlineGame) return;
+    activeOnlineGame.acceptRematch(playerAlias);
+  };
+
+  const handleRematchDecline = () => {
+    if (!activeOnlineGame) return;
+    activeOnlineGame.declineRematch();
+  };
+
+  // Listen for rematch-accepted to restart game
+  useEffect(() => {
+    if (!onlineGameData) return;
+
+    const handleRematchAccepted = (data: {
+      gameId: string;
+      yourSymbol: 'X' | 'O';
+      opponent: { name: string };
+    }) => {
+      console.log('Rematch accepted, starting new game:', data);
+      // Update game data with new game ID
+      setOnlineGameData({
+        gameId: data.gameId,
+        yourSymbol: data.yourSymbol,
+        opponentName: data.opponent.name,
+      });
+    };
+
+    on('rematch-accepted', handleRematchAccepted);
+
+    return () => {
+      off('rematch-accepted', handleRematchAccepted);
+    };
+  }, [on, off, onlineGameData]);
+
   // Use online game hook - ALWAYS call hooks unconditionally!
   // Pass null values when not in online game, hook will handle it
   const onlineGame = useOnlineGame(
@@ -263,9 +303,53 @@ export function Game() {
               />
 
               {activeOnlineGame.gameStatus !== 'playing' && (
-                <button className="new-game-button" onClick={handleLeaveOnlineGame}>
-                  ← Zurück zum Hauptmenü
-                </button>
+                <div className="online-game-end-actions">
+                  {/* Rematch UI */}
+                  {activeOnlineGame.rematchStatus === 'none' && (
+                    <>
+                      <button className="rematch-button" onClick={handleRematchRequest}>
+                        🔄 Revanche
+                      </button>
+                      <button className="leave-button" onClick={handleLeaveOnlineGame}>
+                        ← Zurück zum Hauptmenü
+                      </button>
+                    </>
+                  )}
+                  
+                  {activeOnlineGame.rematchStatus === 'requested' && (
+                    <div className="rematch-waiting">
+                      <p>⏳ Warte auf Antwort von {activeOnlineGame.opponentName}...</p>
+                      <button className="cancel-button" onClick={handleLeaveOnlineGame}>
+                        Abbrechen
+                      </button>
+                    </div>
+                  )}
+                  
+                  {activeOnlineGame.rematchStatus === 'pending' && (
+                    <div className="rematch-request">
+                      <p className="rematch-message">
+                        🎮 {activeOnlineGame.rematchRequesterName} möchte eine Revanche!
+                      </p>
+                      <div className="rematch-buttons">
+                        <button className="accept-button" onClick={handleRematchAccept}>
+                          ✓ Annehmen
+                        </button>
+                        <button className="decline-button" onClick={handleRematchDecline}>
+                          ✕ Ablehnen
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {activeOnlineGame.rematchStatus === 'declined' && (
+                    <div className="rematch-declined">
+                      <p>😔 Revanche abgelehnt</p>
+                      <button className="leave-button" onClick={handleLeaveOnlineGame}>
+                        ← Zurück zum Hauptmenü
+                      </button>
+                    </div>
+                  )}
+                </div>
               )}
 
               {/* Quick Chat for online games */}

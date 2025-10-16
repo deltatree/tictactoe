@@ -87,7 +87,7 @@ const Matchmaking: React.FC<MatchmakingProps> = ({ playerName, onMatchFound, onC
   const handleConfirmName = () => {
     if (!matchData) return;
     
-    console.log('Matchmaking: Name confirmed, starting game...');
+    console.log('Matchmaking: Name confirmed, starting game...', matchData);
     if (onNameConfirmed) {
       onNameConfirmed();
     }
@@ -103,9 +103,12 @@ const Matchmaking: React.FC<MatchmakingProps> = ({ playerName, onMatchFound, onC
       
       if (countdownValue === 0) {
         clearInterval(countdownInterval);
+        // Fix: opponent.name aus matchData extrahieren
+        const opponentName = matchData.opponent?.name || 'Anonymous';
+        console.log('Starting game with opponent:', opponentName);
         onMatchFound({
           gameId: matchData.gameId,
-          opponentName: matchData.opponent.name,
+          opponentName: opponentName,
           yourSymbol: matchData.yourSymbol,
           opponentSymbol: matchData.yourSymbol === 'X' ? 'O' : 'X'
         });

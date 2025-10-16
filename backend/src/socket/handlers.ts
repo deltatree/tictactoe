@@ -111,8 +111,95 @@ export function setupSocketHandlers(
       if (game.isOver()) {
         setTimeout(() => {
           gameManager.removeGame(data.gameId);
-        }, 10000); // 10 seconds
+        }, 30000); // 30 seconds (give time for rematch)
       }
+    });
+
+    // Request rematch
+    socket.on('request-rematch', (data: { gameId: string; playerName: string }) => {
+      const game = gameManager.getGame(data.gameId);
+      if (!game) {
+        socket.emit('error', { message: 'Game not found' });
+        return;
+      }
+
+      // Verify player is in this game
+      if (!game.hasPlayer(socket.id)) {
+        socket.emit('error', { message: 'Not in this game' });
+        return;
+      }
+
+      // Get opponent socket ID
+      const gameState = game.getState();
+      const opponentId = gameState.players.X === socket.id 
+        ? gameState.players.O 
+        : gameState.players.X;
+
+      // Notify opponent about rematch request
+      io.to(opponentId).emit('rematch-request', {
+        requesterId: socket.id,
+        requesterName: data.playerName,
+        gameId: data.gameId,
+      });
+
+      console.log(`🔄 Rematch requested by ${socket.id} in game ${data.gameId}`);
+    });
+
+    // Accept rematch
+    socket.on('accept-rematch', (data: { 
+      gameId: string; 
+      requesterId: string; 
+      playerName: string;
+      requesterName: string;
+    }) => {
+      const oldGame = gameManager.getGame(data.gameId);
+      if (!oldGame) {
+        socket.emit('error', { message: 'Original game not found' });
+        return;
+      }
+      
+      // Create new game with same players
+      const newGame = gameManager.createGame(data.requesterId, socket.id);
+      const newGameState = newGame.getState();
+
+      // Notify both players with correct opponent names
+      io.to(data.requesterId).emit('rematch-accepted', {
+        gameId: newGameState.id,
+        yourSymbol: 'X',
+        opponent: {
+          id: socket.id,
+          name: data.playerName || 'Anonymous'
+        },
+        gameState: newGameState,
+      });
+
+      io.to(socket.id).emit('rematch-accepted', {
+        gameId: newGameState.id,
+        yourSymbol: 'O',
+        opponent: {
+          id: data.requesterId,
+          name: data.requesterName || 'Anonymous'
+        },
+        gameState: newGameState,
+      });
+
+      // Join both players to new game room
+      io.sockets.sockets.get(data.requesterId)?.join(newGameState.id);
+      io.sockets.sockets.get(socket.id)?.join(newGameState.id);
+
+      // Clean up old game immediately
+      gameManager.removeGame(data.gameId);
+
+      console.log(`🔄 Rematch accepted: new game ${newGameState.id}`);
+    });
+
+    // Decline rematch
+    socket.on('decline-rematch', (data: { requesterId: string }) => {
+      io.to(data.requesterId).emit('rematch-declined', {
+        message: 'Dein Gegner möchte keine Revanche spielen.'
+      });
+
+      console.log(`🔄 Rematch declined by ${socket.id}`);
     });
 
     // Player disconnects
