@@ -4,7 +4,7 @@ import type { ConnectionStatus as ConnectionStatusType } from '../../context/Web
 import './ConnectionStatus.css';
 
 const ConnectionStatus: React.FC = () => {
-  const { connectionStatus } = useWebSocket();
+  const { connectionStatus, reconnectAttempts, transport } = useWebSocket();
 
   const getStatusInfo = (status: ConnectionStatusType) => {
     switch (status) {
@@ -23,7 +23,7 @@ const ConnectionStatus: React.FC = () => {
       case 'reconnecting':
         return {
           icon: '🟡',
-          text: 'Verbinde neu...',
+          text: reconnectAttempts > 0 ? `Versuch ${reconnectAttempts}...` : 'Verbinde neu...',
           className: 'reconnecting'
         };
       case 'disconnected':
@@ -47,6 +47,11 @@ const ConnectionStatus: React.FC = () => {
     <div className={`connection-status ${statusInfo.className}`}>
       <span className="connection-icon">{statusInfo.icon}</span>
       <span className="connection-text">{statusInfo.text}</span>
+      {connectionStatus === 'connected' && transport && (
+        <span className="connection-transport" title={`Transport: ${transport}`}>
+          {transport === 'websocket' ? '⚡' : '📡'}
+        </span>
+      )}
     </div>
   );
 };

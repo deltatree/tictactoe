@@ -8,6 +8,8 @@ interface WebSocketContextType {
   socket: Socket | null;
   connectionStatus: ConnectionStatus;
   isConnected: boolean;
+  reconnectAttempts: number;
+  transport: string | null;
   connect: () => void;
   disconnect: () => void;
   emit: (event: string, ...args: any[]) => void;
@@ -28,6 +30,8 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
 }) => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('disconnected');
+  const [reconnectAttempts, setReconnectAttempts] = useState<number>(0);
+  const [transport, setTransport] = useState<string | null>(null);
 
   const connect = useCallback(() => {
     if (socket?.connected) {
@@ -39,22 +43,48 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
     setConnectionStatus('connecting');
 
     const newSocket = io(serverUrl, {
+      // Transport configuration for firewall compatibility
+      transports: ['websocket', 'polling'], // Try WebSocket first, fall back to polling
+      upgrade: true, // Allow upgrading from polling to WebSocket
+      
+      // Reconnection configuration with exponential backoff
       reconnection: true,
-      reconnectionDelay: 1000,
-      reconnectionDelayMax: 5000,
-      reconnectionAttempts: 5,
-      timeout: 10000,
-      transports: ['websocket', 'polling']
+      reconnectionDelay: 1000, // Start with 1 second
+      reconnectionDelayMax: 10000, // Max 10 seconds between attempts
+      reconnectionAttempts: Infinity, // Never give up! (user can manually disconnect)
+      
+      // Connection timeouts
+      timeout: 20000, // 20 seconds for initial connection
+      
+      // Force new connection (don't reuse old ones)
+      forceNew: false,
+      
+      // Auto-connect
+      autoConnect: false, // We control connection manually
     });
 
     newSocket.on('connect', () => {
       console.log('WebSocket: Connected!', newSocket.id);
       setConnectionStatus('connected');
+      setReconnectAttempts(0);
+      
+      // Monitor transport for debugging
+      const currentTransport = newSocket.io.engine?.transport?.name;
+      console.log('WebSocket: Using transport:', currentTransport);
+      setTransport(currentTransport || null);
+      
+      // Listen for transport upgrades
+      newSocket.io.engine?.on('upgrade', () => {
+        const upgradedTransport = newSocket.io.engine?.transport?.name;
+        console.log('WebSocket: Upgraded to transport:', upgradedTransport);
+        setTransport(upgradedTransport || null);
+      });
     });
 
     newSocket.on('disconnect', (reason) => {
       console.log('WebSocket: Disconnected:', reason);
       setConnectionStatus('disconnected');
+      setTransport(null);
     });
 
     newSocket.on('connect_error', (error) => {
@@ -62,22 +92,31 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
       setConnectionStatus('disconnected');
     });
 
-    newSocket.io.on('reconnect_attempt', () => {
-      console.log('WebSocket: Attempting to reconnect...');
+    newSocket.io.on('reconnect_attempt', (attemptNumber) => {
+      console.log(`WebSocket: Reconnect attempt ${attemptNumber}...`);
       setConnectionStatus('reconnecting');
+      setReconnectAttempts(attemptNumber);
     });
 
     newSocket.io.on('reconnect', (attemptNumber) => {
       console.log(`WebSocket: Reconnected after ${attemptNumber} attempts`);
       setConnectionStatus('connected');
+      setReconnectAttempts(0);
     });
 
     newSocket.io.on('reconnect_failed', () => {
-      console.error('WebSocket: Reconnection failed');
+      console.error('WebSocket: Reconnection failed after all attempts');
       setConnectionStatus('disconnected');
     });
 
+    newSocket.io.on('error', (error) => {
+      console.error('WebSocket: Manager error:', error);
+    });
+
     setSocket(newSocket);
+    
+    // Manually connect (since autoConnect is false)
+    newSocket.connect();
   }, [serverUrl, socket]);
 
   const disconnect = useCallback(() => {
@@ -122,6 +161,8 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
     socket,
     connectionStatus,
     isConnected: connectionStatus === 'connected',
+    reconnectAttempts,
+    transport,
     connect,
     disconnect,
     emit,

@@ -25,6 +25,13 @@
   letter-spacing: 0.3px;
 }
 
+.connection-transport {
+  font-size: 12px;
+  opacity: 0.8;
+  margin-left: 4px;
+  cursor: help;
+}
+
 /* Connected state */
 .connection-status.connected {
   background: rgba(16, 185, 129, 0.15);

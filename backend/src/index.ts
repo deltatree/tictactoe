@@ -12,7 +12,23 @@ const io = new Server(httpServer, {
   cors: {
     origin: process.env.FRONTEND_URL || 'http://localhost:5173',
     methods: ['GET', 'POST'],
+    credentials: true,
   },
+  // Transport configuration for maximum firewall compatibility
+  transports: ['websocket', 'polling'], // Support both transports
+  allowUpgrades: true, // Allow upgrading from polling to WebSocket
+  
+  // Ping/pong for connection health monitoring
+  pingInterval: 25000, // Send ping every 25 seconds
+  pingTimeout: 10000, // Wait 10 seconds for pong response
+  
+  // Connection settings
+  connectTimeout: 45000, // 45 seconds for initial connection
+  maxHttpBufferSize: 1e6, // 1 MB max message size
+  
+  // Polling-specific settings (for firewall compatibility)
+  allowEIO3: true, // Support older clients if needed
+  cookie: false, // No cookies needed for our use case
 });
 
 // Middleware
