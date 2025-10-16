@@ -8,9 +8,18 @@ import { MatchmakingQueue } from './matchmaking/Queue';
 
 const app = express();
 const httpServer = createServer(app);
+
+// Determine allowed origins
+const allowedOrigins: string[] = [
+  'http://localhost:5173',  // Vite dev server
+  'http://localhost:80',     // Docker local
+  'http://localhost',        // Docker without port
+  process.env.FRONTEND_URL,
+].filter((origin): origin is string => Boolean(origin));
+
 const io = new Server(httpServer, {
   cors: {
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    origin: allowedOrigins,
     methods: ['GET', 'POST'],
     credentials: true,
   },
@@ -32,7 +41,10 @@ const io = new Server(httpServer, {
 });
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true,
+}));
 app.use(express.json());
 
 // Game state

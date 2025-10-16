@@ -26,7 +26,13 @@ interface WebSocketProviderProps {
 
 export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ 
   children,
-  serverUrl = import.meta.env.VITE_SERVER_URL || 'http://localhost:3001'
+  serverUrl = import.meta.env.VITE_SERVER_URL || (
+    // In production (Docker), use same origin via nginx proxy
+    // In development, use explicit localhost:3001
+    window.location.hostname === 'localhost' && window.location.port === '5173'
+      ? 'http://localhost:3001'
+      : window.location.origin
+  )
 }) => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('disconnected');

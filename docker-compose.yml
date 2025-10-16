@@ -8,8 +8,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "80:80"      # Frontend (nginx)
-      - "3000:3000"  # Backend (Socket.IO)
+      - "80:80"      # Single port - nginx proxies to backend internally
     environment:
       - NODE_ENV=production
       - PORT=3000
