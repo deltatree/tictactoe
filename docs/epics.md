@@ -32,7 +32,45 @@ Children can play an engaging, educational strategy game that helps develop crit
 
 ---
 
-## Stories
+### Epic 2: Enhanced Features & Online Multiplayer
+
+**Epic ID:** EPIC-2
+**Epic Title:** Enhanced Features & Online Multiplayer
+**Epic Goal:** Erweitere das Spiel um Sound-Kontrolle, lokalen 2-Spieler Modus, und vollständigen Online-Multiplayer über das Internet
+
+**Value Proposition:**
+Spieler können nicht nur gegen die KI spielen, sondern auch lokal oder online gegen Freunde antreten, mit personalisierten Einstellungen und sozialer Interaktion.
+
+**Success Criteria:**
+- Sound-Lautstärke einstellbar und persistent
+- 2-Spieler Lokal-Modus funktioniert einwandfrei
+- Online-Matchmaking matcht Spieler in <10 Sekunden
+- Online-Spiele laufen mit <500ms Latency
+- Backend Uptime >95%
+- Chat mit sicheren, vordefinierten Nachrichten
+- Theme-Wechsel funktioniert ohne Reload
+
+**Story Count:** 8
+**Estimated Effort:** 20 Tage Entwicklung + 4 Tage Testing = 24 Arbeitstage (4-5 Wochen)
+**Status:** 🚀 IN PROGRESS (Started: 2025-10-16)
+**Target Release:** v02.00.00 (Mid-November 2025)
+
+**Progress:** 0/8 Stories Complete (0%)
+
+| Story | Title | Status | Priority | Effort | Week |
+|-------|-------|--------|----------|--------|------|
+| 2.1 | Sound Volume Controls | 🚀 In Progress | High | 1 Tag | Week 6 |
+| 2.2 | 2-Player Local Mode | ⏳ Planned | High | 2 Tage | Week 6 |
+| 2.3 | Backend & WebSocket Infrastructure | ⏳ Planned | High | 3-4 Tage | Week 7 |
+| 2.4 | Online Matchmaking System | ⏳ Planned | High | 2-3 Tage | Week 7 |
+| 2.5 | Real-time Online Gameplay | ⏳ Planned | High | 3-4 Tage | Week 8 |
+| 2.6 | Chat & Player Profiles | ⏳ Planned | Medium | 2-3 Tage | Week 8 |
+| 2.7 | Game History & Statistics | ⏳ Planned | Medium | 2 Tage | Week 9 |
+| 2.8 | Theme Customization | ⏳ Planned | Low | 1-2 Tage | Week 9 |
+
+---
+
+## Epic 1 Stories
 
 ### Story 1.1: Basic Game Board & Player Moves
 
