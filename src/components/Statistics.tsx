@@ -23,7 +23,7 @@ export function Statistics({ stats, onReset }: StatisticsProps) {
           <span className="stat-label">Siege</span>
         </div>
         <div className="stat-item loss">
-          <span className="stat-emoji">��</span>
+          <span className="stat-emoji">😢</span>
           <span className="stat-value">{stats.losses}</span>
           <span className="stat-label">Niederlagen</span>
         </div>

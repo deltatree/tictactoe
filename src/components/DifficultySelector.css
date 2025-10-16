@@ -1,6 +1,8 @@
 .difficulty-selector {
   text-align: center;
   margin: 20px 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .difficulty-selector h3 {
@@ -62,13 +64,66 @@
   font-size: 16px;
 }
 
-@media (max-width: 480px) {
+/* Tablet breakpoint */
+@media (max-width: 768px) {
+  .difficulty-selector h3 {
+    font-size: 18px;
+  }
+
   .difficulty-buttons {
-    gap: 10px;
+    gap: 12px;
   }
 
   .difficulty-button {
-    min-width: 90px;
+    min-width: 110px;
+    padding: 11px 20px;
+  }
+}
+
+/* Mobile breakpoint */
+@media (max-width: 480px) {
+  .difficulty-selector {
+    margin: 15px 0;
+    padding: 0 10px;
+  }
+
+  .difficulty-selector h3 {
+    font-size: 16px;
+    margin-bottom: 12px;
+  }
+
+  .difficulty-buttons {
+    gap: 8px;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .difficulty-button {
+    min-width: auto;
+    width: 100%;
+    max-width: 300px;
+    margin: 0 auto;
+    padding: 12px 20px;
+    font-size: 15px;
+    justify-content: center;
+  }
+
+  .difficulty-button .emoji {
+    font-size: 22px;
+  }
+
+  .difficulty-button .label {
+    font-size: 15px;
+  }
+}
+
+/* Very small mobile devices */
+@media (max-width: 375px) {
+  .difficulty-selector h3 {
+    font-size: 15px;
+  }
+
+  .difficulty-button {
     padding: 10px 16px;
     font-size: 14px;
   }

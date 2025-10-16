@@ -6,6 +6,9 @@
   flex-direction: column;
   align-items: center;
   gap: 20px;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 100vh;
 }
 
 .game-header {
@@ -61,13 +64,16 @@
   font-size: 14px;
 }
 
+/* Tablet breakpoint */
 @media (max-width: 768px) {
   .game-container {
     padding: 15px;
+    gap: 15px;
   }
 
   .game-header h1 {
     font-size: 36px;
+    letter-spacing: 1px;
   }
 
   .game-header .subtitle {
@@ -77,12 +83,20 @@
   .new-game-button {
     padding: 12px 30px;
     font-size: 18px;
+    width: auto;
   }
 }
 
+/* Mobile breakpoint */
 @media (max-width: 480px) {
+  .game-container {
+    padding: 10px;
+    gap: 12px;
+  }
+
   .game-header h1 {
-    font-size: 32px;
+    font-size: 28px;
+    letter-spacing: 0.5px;
   }
 
   .game-header .subtitle {
@@ -90,7 +104,34 @@
   }
 
   .new-game-button {
-    padding: 10px 25px;
+    padding: 12px 24px;
     font-size: 16px;
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .game-footer {
+    font-size: 12px;
+    margin-top: 20px;
+  }
+}
+
+/* Very small mobile devices */
+@media (max-width: 375px) {
+  .game-container {
+    padding: 8px;
+  }
+
+  .game-header h1 {
+    font-size: 24px;
+  }
+
+  .game-header .subtitle {
+    font-size: 13px;
+  }
+
+  .new-game-button {
+    padding: 10px 20px;
+    font-size: 15px;
   }
 }

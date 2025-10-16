@@ -6,6 +6,9 @@
   border-radius: 15px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
+  width: 100%;
+  max-width: 500px;
+  box-sizing: border-box;
 }
 
 .game-status h2 {
@@ -31,8 +34,39 @@
   }
 }
 
-@media (max-width: 480px) {
+/* Tablet breakpoint */
+@media (max-width: 768px) {
+  .game-status {
+    padding: 18px;
+    margin: 15px 0;
+  }
+
   .game-status h2 {
-    font-size: 22px;
+    font-size: 24px;
+  }
+}
+
+/* Mobile breakpoint */
+@media (max-width: 480px) {
+  .game-status {
+    padding: 15px;
+    margin: 15px 10px;
+    max-width: calc(100vw - 20px);
+  }
+
+  .game-status h2 {
+    font-size: 20px;
+  }
+}
+
+/* Very small mobile devices */
+@media (max-width: 375px) {
+  .game-status {
+    padding: 12px;
+    margin: 10px 5px;
+  }
+
+  .game-status h2 {
+    font-size: 18px;
   }
 }

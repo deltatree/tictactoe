@@ -12,6 +12,8 @@ body {
   -moz-osx-font-smoothing: grayscale;
   touch-action: manipulation;
   user-select: none;
+  overflow-x: hidden;
+  width: 100%;
 }
 
 button {
@@ -23,4 +25,20 @@ button {
 button,
 a {
   touch-action: manipulation;
+}
+
+/* Responsive root element */
+#root {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Improve emoji rendering consistency */
+.stat-emoji,
+.difficulty-button .emoji {
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", sans-serif;
+  display: inline-block;
+  line-height: 1;
 }

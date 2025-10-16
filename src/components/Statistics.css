@@ -3,9 +3,10 @@
   border-radius: 15px;
   padding: 20px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  margin: 20px 0;
+  margin: 20px auto;
   width: 100%;
   max-width: 500px;
+  box-sizing: border-box;
 }
 
 .statistics h3 {
@@ -125,17 +126,44 @@
   transform: translateY(0);
 }
 
-@media (max-width: 480px) {
+/* Tablet breakpoint */
+@media (max-width: 768px) {
   .statistics {
-    padding: 15px;
+    padding: 18px;
+    margin: 15px auto;
   }
 
   .stats-grid {
-    gap: 10px;
+    gap: 12px;
+  }
+
+  .stat-emoji {
+    font-size: 28px;
+  }
+
+  .stat-value {
+    font-size: 26px;
+  }
+}
+
+/* Mobile breakpoint */
+@media (max-width: 480px) {
+  .statistics {
+    padding: 15px;
+    margin: 15px 10px;
+    max-width: calc(100vw - 20px);
+  }
+
+  .statistics h3 {
+    font-size: 18px;
+  }
+
+  .stats-grid {
+    gap: 8px;
   }
 
   .stat-item {
-    padding: 12px 8px;
+    padding: 10px 6px;
   }
 
   .stat-emoji {
@@ -143,10 +171,51 @@
   }
 
   .stat-value {
-    font-size: 24px;
+    font-size: 22px;
   }
 
   .stat-label {
     font-size: 10px;
+  }
+
+  .win-rate p {
+    font-size: 14px;
+  }
+
+  .win-rate strong {
+    font-size: 18px;
+  }
+
+  .reset-stats-button {
+    font-size: 13px;
+    padding: 10px 16px;
+  }
+}
+
+/* Very small mobile devices */
+@media (max-width: 375px) {
+  .statistics {
+    padding: 12px;
+    margin: 10px 5px;
+  }
+
+  .stats-grid {
+    gap: 6px;
+  }
+
+  .stat-item {
+    padding: 8px 4px;
+  }
+
+  .stat-emoji {
+    font-size: 20px;
+  }
+
+  .stat-value {
+    font-size: 20px;
+  }
+
+  .stat-label {
+    font-size: 9px;
   }
 }

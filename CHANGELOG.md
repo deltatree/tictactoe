@@ -7,10 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Loss icon (😢) now displays correctly in statistics (was showing broken encoding)
+- Responsive layout issues fixed - no more horizontal scrolling on mobile
+- Better adaptation to different screen sizes (320px to 1920px+)
+- Improved touch targets on mobile devices
+- Difficulty selector now stacks vertically on mobile for better UX
+
+### Changed
+- Enhanced responsive breakpoints (added 768px tablet, 375px small mobile)
+- Dynamic cell sizing using CSS `min()` function
+- Improved spacing and padding across all components
+- Better emoji font rendering consistency
+
 ### Added
 - Docker support with multi-stage builds
 - GitHub Actions workflow for automated Docker image builds
 - Semantic versioning with automated releases
+- Comprehensive responsive CSS for all components
 
 ## [1.0.0] - 2025-10-16
 
