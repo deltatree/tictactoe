@@ -12,6 +12,7 @@ import Matchmaking from './Matchmaking/Matchmaking';
 import GameHistory from './GameHistory/GameHistory';
 import Achievements from './Achievements/Achievements';
 import QuickChat from './QuickChat/QuickChat';
+import { PlayerAlias, getPlayerAlias } from './PlayerAlias/PlayerAlias';
 import { useGameLogic } from '../hooks/useGameLogic';
 import { useOnlineGame } from '../hooks/useOnlineGame';
 import { useEnhancedStats } from '../hooks/useEnhancedStats';
@@ -58,12 +59,17 @@ export function Game() {
         gameResult = 'loss'; // O means opponent won
       }
       
+      // Use correct opponent name: for online games, use opponentName from online game
+      const opponentName = (gameMode === 'online' && onlineGameData)
+        ? onlineGameData.opponentName
+        : player2;
+      
       recordGame(
         gameMode,
         gameResult,
-        player2, // Opponent name
-        'X',     // Player is always X
-        'O'      // Opponent is always O
+        opponentName, // Real opponent name for online, player2 for AI/local
+        'X',          // Player is always X
+        'O'           // Opponent is always O
       );
     },
   });
@@ -80,6 +86,7 @@ export function Game() {
 
   // Online game state
   const [isInMatchmaking, setIsInMatchmaking] = useState<boolean>(false);
+  const [playerAlias, setPlayerAlias] = useState<string>(getPlayerAlias());
   const [onlineGameData, setOnlineGameData] = useState<{
     gameId: string;
     opponentName: string;
@@ -189,11 +196,14 @@ export function Game() {
 
       {/* Show matchmaking screen if in matchmaking */}
       {isInMatchmaking ? (
-        <Matchmaking
-          playerName={player1Name || 'Anonymous'}
-          onMatchFound={handleMatchFound}
-          onCancel={handleMatchmakingCancel}
-        />
+        <>
+          <PlayerAlias onAliasSet={setPlayerAlias} currentAlias={playerAlias} />
+          <Matchmaking
+            playerName={playerAlias}
+            onMatchFound={handleMatchFound}
+            onCancel={handleMatchmakingCancel}
+          />
+        </>
       ) : (
         <>
           <GameModeSelector
@@ -201,6 +211,10 @@ export function Game() {
             onModeChange={handleModeChange}
             disabled={false}
           />
+
+          {gameMode === 'online' && !onlineGameData && (
+            <PlayerAlias onAliasSet={setPlayerAlias} currentAlias={playerAlias} />
+          )}
 
           {gameMode === 'local-2p' && (
             <PlayerNames
