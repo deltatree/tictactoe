@@ -1,0 +1,83 @@
+.difficulty-selector {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.difficulty-selector h3 {
+  font-size: 20px;
+  color: #333;
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+.difficulty-buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.difficulty-button {
+  padding: 12px 24px;
+  border: 3px solid #e0e0e0;
+  border-radius: 12px;
+  background: white;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 120px;
+}
+
+.difficulty-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  border-color: #667eea;
+}
+
+.difficulty-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.difficulty-button.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: #667eea;
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.difficulty-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.difficulty-button .emoji {
+  font-size: 24px;
+}
+
+.difficulty-button .label {
+  font-size: 16px;
+}
+
+@media (max-width: 480px) {
+  .difficulty-buttons {
+    gap: 10px;
+  }
+
+  .difficulty-button {
+    min-width: 90px;
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+
+  .difficulty-button .emoji {
+    font-size: 20px;
+  }
+
+  .difficulty-button .label {
+    font-size: 14px;
+  }
+}

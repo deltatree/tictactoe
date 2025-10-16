@@ -1,0 +1,90 @@
+.cell {
+  width: 100px;
+  height: 100px;
+  background: white;
+  border: 3px solid #e0e0e0;
+  border-radius: 12px;
+  font-size: 48px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.cell:hover:not(.occupied) {
+  background: #f0f0f0;
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.cell:active:not(.occupied) {
+  transform: scale(0.95);
+}
+
+.cell.occupied {
+  cursor: not-allowed;
+}
+
+.cell.winning {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  animation: pulse 0.6s ease-in-out;
+  border-color: #f59e0b;
+}
+
+.symbol {
+  display: block;
+  animation: pop-in 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.player-x {
+  color: #3b82f6;
+  text-shadow: 2px 2px 4px rgba(59, 130, 246, 0.3);
+}
+
+.player-o {
+  color: #ef4444;
+  text-shadow: 2px 2px 4px rgba(239, 68, 68, 0.3);
+}
+
+@keyframes pop-in {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .cell {
+    width: 80px;
+    height: 80px;
+    font-size: 40px;
+  }
+}
+
+@media (max-width: 480px) {
+  .cell {
+    width: 70px;
+    height: 70px;
+    font-size: 36px;
+  }
+}

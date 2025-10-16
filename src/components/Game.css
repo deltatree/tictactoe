@@ -1,0 +1,96 @@
+.game-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.game-header {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.game-header h1 {
+  font-size: 48px;
+  margin: 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+.game-header .subtitle {
+  font-size: 18px;
+  color: #666;
+  margin: 10px 0 0 0;
+  font-weight: 500;
+}
+
+.new-game-button {
+  padding: 15px 40px;
+  font-size: 20px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+  border: none;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 20px rgba(245, 87, 108, 0.3);
+  margin-top: 20px;
+}
+
+.new-game-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(245, 87, 108, 0.4);
+}
+
+.new-game-button:active {
+  transform: translateY(-1px);
+}
+
+.game-footer {
+  text-align: center;
+  margin-top: 30px;
+  color: #999;
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  .game-container {
+    padding: 15px;
+  }
+
+  .game-header h1 {
+    font-size: 36px;
+  }
+
+  .game-header .subtitle {
+    font-size: 16px;
+  }
+
+  .new-game-button {
+    padding: 12px 30px;
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .game-header h1 {
+    font-size: 32px;
+  }
+
+  .game-header .subtitle {
+    font-size: 14px;
+  }
+
+  .new-game-button {
+    padding: 10px 25px;
+    font-size: 16px;
+  }
+}
