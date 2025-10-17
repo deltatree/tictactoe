@@ -52,6 +52,19 @@ export function useOnlineGame(
 
   const isYourTurn = currentPlayer === yourSymbol;
 
+  // Debug logging for turn calculation
+  useEffect(() => {
+    if (isActive) {
+      console.log('🎮 Turn Debug:', {
+        currentPlayer,
+        yourSymbol,
+        isYourTurn,
+        gameStatus,
+        board: board.filter(c => c !== null).length + ' moves'
+      });
+    }
+  }, [currentPlayer, yourSymbol, isYourTurn, gameStatus, board, isActive]);
+
   // Reset game state when gameId changes (new game/rematch)
   useEffect(() => {
     if (gameId && gameId !== previousGameId) {
@@ -166,19 +179,34 @@ export function useOnlineGame(
   const handleCellClick = useCallback((index: number) => {
     if (!isActive) return;
     
+    console.log('🖱️ Cell clicked:', {
+      index,
+      isYourTurn,
+      currentPlayer,
+      yourSymbol,
+      gameStatus,
+      cellEmpty: board[index] === null
+    });
+    
     // Can only make move if it's your turn and game is still playing
     if (!isYourTurn || gameStatus !== 'playing') {
+      console.warn('❌ Cannot make move:', {
+        isYourTurn,
+        gameStatus,
+        reason: !isYourTurn ? 'Not your turn' : 'Game not playing'
+      });
       return;
     }
 
     // Can only click empty cells
     if (board[index] !== null) {
+      console.warn('❌ Cell already taken:', index);
       return;
     }
 
-    console.log('Making move:', { gameId, position: index });
+    console.log('✅ Making move:', { gameId, position: index });
     emit('make-move', { gameId, position: index });
-  }, [isYourTurn, gameStatus, board, emit, gameId, isActive]);
+  }, [isYourTurn, gameStatus, board, emit, gameId, isActive, currentPlayer, yourSymbol]);
 
   // Leave game (disconnect) - only if active
   const leaveGame = useCallback(() => {

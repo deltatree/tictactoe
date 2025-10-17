@@ -31,7 +31,7 @@ export function GameStatus({
 
   const getStatusMessage = () => {
     if (gameStatus === 'won') {
-      if (gameMode === 'local-2p') {
+      if (gameMode === 'local-2p' || gameMode === 'online') {
         const winnerName = winner === 'X' ? getPlayerName('X') : getPlayerName('O');
         return `🎉 ${winnerName} hat gewonnen! 🎉`;
       }
@@ -45,7 +45,7 @@ export function GameStatus({
       return '🤝 Unentschieden!';
     }
 
-    if (gameMode === 'local-2p') {
+    if (gameMode === 'local-2p' || gameMode === 'online') {
       const currentName = getPlayerName(currentPlayer);
       const symbol = currentPlayer === 'X' ? '✖️' : '⭕';
       return `${symbol} ${currentName} ist dran!`;
