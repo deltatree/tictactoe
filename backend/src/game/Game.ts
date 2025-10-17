@@ -44,10 +44,27 @@ export class Game {
     // Validate it's the player's turn
     const playerRole = this.getPlayerRole(socketId);
     if (!playerRole) {
+      console.error('❌ Player not in game:', { socketId, gameId: this.state.id });
       return { success: false, error: 'Player not in this game' };
     }
 
+    console.log('🎮 Backend makeMove:', {
+      gameId: this.state.id,
+      socketId,
+      playerRole,
+      currentPlayer: this.state.currentPlayer,
+      position,
+      board: this.state.board.filter(c => c !== null).length + ' moves',
+      players: this.state.players
+    });
+
     if (playerRole !== this.state.currentPlayer) {
+      console.error('❌ Not your turn:', {
+        playerRole,
+        currentPlayer: this.state.currentPlayer,
+        socketId,
+        expectedSocketId: this.state.players[this.state.currentPlayer]
+      });
       return { success: false, error: 'Not your turn' };
     }
 
@@ -72,9 +89,16 @@ export class Game {
       this.state.status = result.winner === 'draw' ? 'draw' : 'won';
       this.state.winner = result.winner === 'draw' ? null : (result.winner as Player);
       this.state.winningLine = result.line;
+      console.log('🏆 Game over:', { winner: result.winner, line: result.line });
     } else {
       // Switch player
+      const oldPlayer = this.state.currentPlayer;
       this.state.currentPlayer = this.state.currentPlayer === 'X' ? 'O' : 'X';
+      console.log('🔄 Turn switched:', {
+        from: oldPlayer,
+        to: this.state.currentPlayer,
+        nextSocketId: this.state.players[this.state.currentPlayer]
+      });
     }
 
     return { success: true };
