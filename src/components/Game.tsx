@@ -300,17 +300,9 @@ export function Game() {
                 gameMode="online"
                 player1Name={activeOnlineGame.yourSymbol === 'X' ? 'Du' : activeOnlineGame.opponentName}
                 player2Name={activeOnlineGame.yourSymbol === 'O' ? 'Du' : activeOnlineGame.opponentName}
+                isYourTurn={activeOnlineGame.isYourTurn}
+                yourSymbol={activeOnlineGame.yourSymbol}
               />
-
-              <div className="online-game-info">
-                <p className="turn-indicator">
-                  {activeOnlineGame.isYourTurn ? (
-                    <span className="your-turn">🟢 Dein Zug ({activeOnlineGame.yourSymbol})</span>
-                  ) : (
-                    <span className="opponent-turn">🔴 {activeOnlineGame.opponentName} ist dran</span>
-                  )}
-                </p>
-              </div>
 
               <Board 
                 board={activeOnlineGame.board} 

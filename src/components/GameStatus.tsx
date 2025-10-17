@@ -9,6 +9,8 @@ interface GameStatusProps {
   gameMode?: GameMode;
   player1Name?: string;
   player2Name?: string;
+  isYourTurn?: boolean;
+  yourSymbol?: 'X' | 'O';
 }
 
 export function GameStatus({ 
@@ -18,9 +20,19 @@ export function GameStatus({
   isAIThinking,
   gameMode = 'ai',
   player1Name = '',
-  player2Name = ''
+  player2Name = '',
+  isYourTurn: _isYourTurn = false,
+  yourSymbol = 'X'
 }: GameStatusProps) {
   const getPlayerName = (player: Player) => {
+    if (gameMode === 'online') {
+      // For online mode, use isYourTurn to determine correct name
+      if (player === yourSymbol) {
+        return 'Du';
+      } else {
+        return player === 'X' ? player1Name : player2Name;
+      }
+    }
     if (gameMode === 'local-2p') {
       return player === 'X' 
         ? (player1Name || 'Spieler 1') 
