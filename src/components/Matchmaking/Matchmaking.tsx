@@ -88,7 +88,7 @@ const Matchmaking: React.FC<MatchmakingProps> = ({ playerName, onMatchFound, onC
       off('opponent-name-updated', handleOpponentNameUpdated);
       off('queue-stats', handleQueueStats);
     };
-  }, [isConnected, emit, on, off, playerName, onMatchFound]); // REMOVED matchData from dependencies!
+  }, [isConnected, emit, on, off, playerName]); // Removed onMatchFound - prevents re-join loop!
 
   // Waiting time counter
   useEffect(() => {
