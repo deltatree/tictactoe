@@ -11,6 +11,9 @@ interface QuickChatProps {
 const QuickChat: React.FC<QuickChatProps> = ({ messages, onSendMessage, isOnlineGame }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [showMessages, setShowMessages] = useState(false);
+  const [lastReadCount, setLastReadCount] = useState(0);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [shouldPulse, setShouldPulse] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -20,6 +23,42 @@ const QuickChat: React.FC<QuickChatProps> = ({ messages, onSendMessage, isOnline
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Track unread messages (only received messages)
+  useEffect(() => {
+    const receivedMessages = messages.filter(msg => msg.sender === 'opponent');
+    const newReceivedCount = receivedMessages.length;
+    
+    // Calculate unread count based on last read
+    const unread = Math.max(0, newReceivedCount - lastReadCount);
+    setUnreadCount(unread);
+    
+    // When new message arrives and chat is closed: pulse and briefly open
+    if (unread > 0 && !isOpen && newReceivedCount > lastReadCount) {
+      setShouldPulse(true);
+      
+      // Auto-open chat briefly to show new message notification
+      setIsOpen(true);
+      setShowMessages(true); // Show message history
+      
+      // Auto-close after 3 seconds if user doesn't interact
+      const autoCloseTimer = setTimeout(() => {
+        setIsOpen(false);
+        setShouldPulse(false);
+      }, 3000);
+      
+      return () => clearTimeout(autoCloseTimer);
+    }
+  }, [messages, lastReadCount, isOpen]);
+
+  // Mark messages as read when chat is opened or history is viewed
+  useEffect(() => {
+    if (isOpen || showMessages) {
+      const receivedMessages = messages.filter(msg => msg.sender === 'opponent');
+      setLastReadCount(receivedMessages.length);
+      setUnreadCount(0);
+    }
+  }, [isOpen, showMessages, messages]);
 
   // Don't show chat in non-online games
   if (!isOnlineGame) {
@@ -39,13 +78,13 @@ const QuickChat: React.FC<QuickChatProps> = ({ messages, onSendMessage, isOnline
     <div className={`quick-chat ${isOpen ? 'open' : 'closed'}`}>
       {/* Chat Toggle Button */}
       <button
-        className="chat-toggle"
+        className={`chat-toggle ${shouldPulse ? 'pulse' : ''} ${unreadCount > 0 ? 'has-unread' : ''}`}
         onClick={() => setIsOpen(!isOpen)}
         title={isOpen ? 'Chat schließen' : 'Chat öffnen'}
       >
         💬
-        {messages.length > 0 && !isOpen && (
-          <span className="message-badge">{messages.length}</span>
+        {unreadCount > 0 && !isOpen && (
+          <span className="message-badge unread-badge">{unreadCount}</span>
         )}
       </button>
 
