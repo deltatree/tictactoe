@@ -55,13 +55,16 @@ const Matchmaking: React.FC<MatchmakingProps> = ({ playerName, onMatchFound, onC
     }) => {
       console.log('Matchmaking: Opponent name updated!', data);
       
-      // Update opponent name in matchData
-      if (matchData && matchData.gameId === data.gameId) {
-        setMatchData({
-          ...matchData,
-          opponent: { name: data.opponentName }
-        });
-      }
+      // Update opponent name in matchData using functional update
+      setMatchData((prevMatchData) => {
+        if (prevMatchData && prevMatchData.gameId === data.gameId) {
+          return {
+            ...prevMatchData,
+            opponent: { name: data.opponentName }
+          };
+        }
+        return prevMatchData;
+      });
     };
 
     // Listen for queue stats updates
@@ -85,7 +88,7 @@ const Matchmaking: React.FC<MatchmakingProps> = ({ playerName, onMatchFound, onC
       off('opponent-name-updated', handleOpponentNameUpdated);
       off('queue-stats', handleQueueStats);
     };
-  }, [isConnected, emit, on, off, playerName, onMatchFound, matchData]);
+  }, [isConnected, emit, on, off, playerName, onMatchFound]); // REMOVED matchData from dependencies!
 
   // Waiting time counter
   useEffect(() => {
