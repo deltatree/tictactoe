@@ -61,9 +61,12 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
     setConnectionStatus('connecting');
 
     const newSocket = io(serverUrl, {
-      // Transport configuration for firewall compatibility
-      transports: ['websocket', 'polling'], // Try WebSocket first, fall back to polling
+      // Transport configuration for MAXIMUM firewall compatibility
+      // IMPORTANT: Start with polling, then upgrade to WebSocket if possible
+      // This ensures connection works even behind strict firewalls
+      transports: ['polling', 'websocket'], // Polling first, then WebSocket upgrade
       upgrade: true, // Allow upgrading from polling to WebSocket
+      rememberUpgrade: true, // Remember successful upgrades
       
       // Reconnection configuration with exponential backoff
       reconnection: true,
@@ -71,42 +74,63 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
       reconnectionDelayMax: 10000, // Max 10 seconds between attempts
       reconnectionAttempts: Infinity, // Never give up! (user can manually disconnect)
       
-      // Connection timeouts
-      timeout: 20000, // 20 seconds for initial connection
+      // Connection timeouts - be patient for firewalls
+      timeout: 30000, // 30 seconds for initial connection (increased for slow networks)
       
       // Force new connection (don't reuse old ones)
       forceNew: false,
       
       // Auto-connect
       autoConnect: false, // We control connection manually
+      
+      // Additional firewall compatibility settings
+      closeOnBeforeunload: false, // Don't close on page unload (better reconnection)
     });
 
     newSocket.on('connect', () => {
-      console.log('WebSocket: Connected!', newSocket.id);
+      console.log('✅ WebSocket: Connected!', newSocket.id);
       setConnectionStatus('connected');
       setReconnectAttempts(0);
       
       // Monitor transport for debugging
       const currentTransport = newSocket.io.engine?.transport?.name;
-      console.log('WebSocket: Using transport:', currentTransport);
+      console.log(`🔌 WebSocket: Using transport: ${currentTransport}`);
       setTransport(currentTransport || null);
+      
+      if (currentTransport === 'polling') {
+        console.log('📡 WebSocket: Connected via HTTP polling (firewall-safe mode)');
+        console.log('🔄 WebSocket: Will attempt to upgrade to WebSocket if possible...');
+      } else if (currentTransport === 'websocket') {
+        console.log('⚡ WebSocket: Connected via native WebSocket (optimal)');
+      }
       
       // Listen for transport upgrades
       newSocket.io.engine?.on('upgrade', () => {
         const upgradedTransport = newSocket.io.engine?.transport?.name;
-        console.log('WebSocket: Upgraded to transport:', upgradedTransport);
+        console.log(`⬆️ WebSocket: Upgraded to transport: ${upgradedTransport}`);
         setTransport(upgradedTransport || null);
+        
+        if (upgradedTransport === 'websocket') {
+          console.log('⚡ WebSocket: Successfully upgraded from polling to WebSocket!');
+        }
+      });
+      
+      // Listen for upgrade errors
+      newSocket.io.engine?.on('upgradeError', (error: Error) => {
+        console.warn('⚠️ WebSocket: Upgrade failed, staying on polling:', error.message);
+        console.log('📡 WebSocket: Continuing with HTTP polling (stable connection)');
       });
     });
 
     newSocket.on('disconnect', (reason) => {
-      console.log('WebSocket: Disconnected:', reason);
+      console.log('❌ WebSocket: Disconnected:', reason);
       setConnectionStatus('disconnected');
       setTransport(null);
     });
 
     newSocket.on('connect_error', (error) => {
-      console.error('WebSocket: Connection error:', error.message);
+      console.error('❌ WebSocket: Connection error:', error.message);
+      console.log('🔄 WebSocket: Retrying with next transport (polling fallback)...');
       setConnectionStatus('disconnected');
     });
 

@@ -24,21 +24,26 @@ const io = new Server(httpServer, {
     methods: ['GET', 'POST'],
     credentials: true,
   },
-  // Transport configuration for maximum firewall compatibility
-  transports: ['websocket', 'polling'], // Support both transports
+  // Transport configuration for MAXIMUM firewall compatibility
+  // CRITICAL: Polling first ensures connection works behind firewalls
+  // WebSocket can be upgraded to later if firewall allows
+  transports: ['polling', 'websocket'], // Polling first, WebSocket second
   allowUpgrades: true, // Allow upgrading from polling to WebSocket
   
   // Ping/pong for connection health monitoring
   pingInterval: 25000, // Send ping every 25 seconds
   pingTimeout: 10000, // Wait 10 seconds for pong response
   
-  // Connection settings
-  connectTimeout: 45000, // 45 seconds for initial connection
+  // Connection settings - be patient with slow/restricted networks
+  connectTimeout: 60000, // 60 seconds for initial connection (firewalls can be slow)
   maxHttpBufferSize: 1e6, // 1 MB max message size
   
   // Polling-specific settings (for firewall compatibility)
   allowEIO3: true, // Support older clients if needed
   cookie: false, // No cookies needed for our use case
+  
+  // CORS preflight settings
+  perMessageDeflate: false, // Disable compression (can cause issues with some firewalls)
 });
 
 // Middleware
