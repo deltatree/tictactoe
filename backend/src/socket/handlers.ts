@@ -53,6 +53,32 @@ export function setupSocketHandlers(
       }
     });
 
+    // Confirm match with final player name
+    socket.on('confirm-match', (data: { gameId: string; playerName: string }) => {
+      console.log(`✅ Match confirmed by ${socket.id} with name: ${data.playerName}`);
+      
+      // Broadcast updated player name to opponent
+      const game = gameManager.getGame(data.gameId);
+      if (!game) {
+        socket.emit('error', { message: 'Game not found' });
+        return;
+      }
+
+      // Find opponent socket ID
+      const gameState = game.getState();
+      const opponentId = gameState.players.X === socket.id 
+        ? gameState.players.O 
+        : gameState.players.X;
+
+      // Notify opponent of confirmed player name
+      io.to(opponentId).emit('opponent-name-updated', {
+        gameId: data.gameId,
+        opponentName: data.playerName || 'Anonymous',
+      });
+
+      console.log(`📢 Opponent ${opponentId} notified of name: ${data.playerName}`);
+    });
+
     // Leave matchmaking queue
     socket.on('leave-queue', () => {
       matchmakingQueue.removePlayer(socket.id);

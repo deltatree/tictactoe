@@ -48,6 +48,22 @@ const Matchmaking: React.FC<MatchmakingProps> = ({ playerName, onMatchFound, onC
       setWaitingForConfirmation(true);
     };
 
+    // Listen for opponent name updates (when opponent confirms with different name)
+    const handleOpponentNameUpdated = (data: {
+      gameId: string;
+      opponentName: string;
+    }) => {
+      console.log('Matchmaking: Opponent name updated!', data);
+      
+      // Update opponent name in matchData
+      if (matchData && matchData.gameId === data.gameId) {
+        setMatchData({
+          ...matchData,
+          opponent: { name: data.opponentName }
+        });
+      }
+    };
+
     // Listen for queue stats updates
     const handleQueueStats = (data: { playersInQueue: number }) => {
       console.log('Matchmaking: Queue stats', data);
@@ -55,6 +71,7 @@ const Matchmaking: React.FC<MatchmakingProps> = ({ playerName, onMatchFound, onC
     };
 
     on('game-found', handleGameFound);
+    on('opponent-name-updated', handleOpponentNameUpdated);
     on('queue-stats', handleQueueStats);
 
     // Request initial stats
@@ -65,9 +82,10 @@ const Matchmaking: React.FC<MatchmakingProps> = ({ playerName, onMatchFound, onC
       console.log('Matchmaking: Leaving queue...');
       emit('leave-queue');
       off('game-found', handleGameFound);
+      off('opponent-name-updated', handleOpponentNameUpdated);
       off('queue-stats', handleQueueStats);
     };
-  }, [isConnected, emit, on, off, playerName, onMatchFound]);
+  }, [isConnected, emit, on, off, playerName, onMatchFound, matchData]);
 
   // Waiting time counter
   useEffect(() => {
@@ -88,6 +106,14 @@ const Matchmaking: React.FC<MatchmakingProps> = ({ playerName, onMatchFound, onC
     if (!matchData) return;
     
     console.log('Matchmaking: Name confirmed, starting game...', matchData);
+    console.log('Matchmaking: Sending current player name to backend:', playerName);
+    
+    // Send confirmation with current player name to backend
+    emit('confirm-match', {
+      gameId: matchData.gameId,
+      playerName: playerName, // Use CURRENT playerName (might have changed)
+    });
+    
     if (onNameConfirmed) {
       onNameConfirmed();
     }

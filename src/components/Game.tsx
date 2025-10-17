@@ -201,10 +201,26 @@ export function Game() {
       });
     };
 
+    const handleOpponentNameUpdated = (data: {
+      gameId: string;
+      opponentName: string;
+    }) => {
+      console.log('Opponent name updated during game:', data);
+      // Update opponent name if it's for current game
+      if (data.gameId === onlineGameData.gameId) {
+        setOnlineGameData({
+          ...onlineGameData,
+          opponentName: data.opponentName,
+        });
+      }
+    };
+
     on('rematch-accepted', handleRematchAccepted);
+    on('opponent-name-updated', handleOpponentNameUpdated);
 
     return () => {
       off('rematch-accepted', handleRematchAccepted);
+      off('opponent-name-updated', handleOpponentNameUpdated);
     };
   }, [on, off, onlineGameData]);
 

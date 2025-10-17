@@ -48,8 +48,32 @@ export function useOnlineGame(
   const [rematchStatus, setRematchStatus] = useState<'none' | 'requested' | 'pending' | 'accepted' | 'declined'>('none');
   const [rematchRequesterName, setRematchRequesterName] = useState<string | null>(null);
   const [rematchRequesterId, setRematchRequesterId] = useState<string | null>(null);
+  const [previousGameId, setPreviousGameId] = useState<string>('');
 
   const isYourTurn = currentPlayer === yourSymbol;
+
+  // Reset game state when gameId changes (new game/rematch)
+  useEffect(() => {
+    if (gameId && gameId !== previousGameId) {
+      console.log('🔄 Online Game: New game detected, resetting state', { 
+        oldGameId: previousGameId, 
+        newGameId: gameId 
+      });
+      
+      // Reset all game state
+      setBoard(Array(9).fill(null));
+      setCurrentPlayer('X');
+      setGameStatus('playing');
+      setWinner(null);
+      setWinningLine(null);
+      setChatMessages([]);
+      setRematchStatus('none');
+      setRematchRequesterName(null);
+      setRematchRequesterId(null);
+      
+      setPreviousGameId(gameId);
+    }
+  }, [gameId, previousGameId]);
 
   // Handle game updates from server - only if we have an active game
   useEffect(() => {
