@@ -6,7 +6,7 @@ interface PlayerAliasProps {
   currentAlias?: string;
 }
 
-const ALIAS_STORAGE_KEY = 'tictactoe-player-alias';
+const ALIAS_STORAGE_KEY = 'connect-four-player-alias';
 const DEFAULT_ALIAS = 'Anonymous';
 
 export const PlayerAlias: React.FC<PlayerAliasProps> = ({ onAliasSet, currentAlias }) => {

@@ -59,7 +59,7 @@ jobs:
             type=raw,value=latest
           labels: |
             org.opencontainers.image.title=testme
-            org.opencontainers.image.description=A fun, educational Tic-Tac-Toe game for children
+            org.opencontainers.image.description=A fun, educational Connect Four (Vier Gewinnt) game for children
             org.opencontainers.image.version=${{ steps.version.outputs.version }}
             org.opencontainers.image.created=${{ github.event.repository.updated_at }}
             org.opencontainers.image.revision=${{ github.sha }}

@@ -92,8 +92,8 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=10s \
       wget --quiet --tries=1 --spider http://localhost:3000/api/health || exit 1
 
 # Add labels for metadata
-LABEL org.opencontainers.image.title="testme - Tic-Tac-Toe Full Stack"
-LABEL org.opencontainers.image.description="Full-stack Tic-Tac-Toe game with frontend (nginx) and backend (Node.js + Socket.IO)"
+LABEL org.opencontainers.image.title="testme - Connect Four Full Stack"
+LABEL org.opencontainers.image.description="Full-stack Connect Four (Vier Gewinnt) game with frontend (nginx) and backend (Node.js + Socket.IO)"
 LABEL org.opencontainers.image.vendor="testme"
 
 # Run supervisor to manage both nginx and node

@@ -2,8 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import type { EnhancedStats, GameHistoryEntry, GameMode, Player } from '../types/game.types';
 import { checkAchievements } from '../utils/achievements';
 
-const STATS_STORAGE_KEY = 'tictactoe-enhanced-stats';
-const HISTORY_STORAGE_KEY = 'tictactoe-game-history';
+const STATS_STORAGE_KEY = 'connect-four-enhanced-stats';
+const HISTORY_STORAGE_KEY = 'connect-four-game-history';
 const MAX_HISTORY = 10;
 
 const createEmptyStats = (): EnhancedStats => ({
