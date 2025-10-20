@@ -19,9 +19,8 @@ export function useGameLogic(props?: UseGameLogicProps) {
   const [difficulty, setDifficulty] = useState<Difficulty>('medium');
   const [isAIThinking, setIsAIThinking] = useState(false);
   
-  // Track last move for animation (currently unused but kept for future features)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [lastMove, setLastMove] = useState<{ col: number; row: number } | null>(null);
+  // Track last move for animation (kept for future features, currently unused in render)
+  const [_lastMove, setLastMove] = useState<{ col: number; row: number } | null>(null);
   
   // 2-Player mode support
   const [gameMode, setGameMode] = useState<GameMode>('ai');
