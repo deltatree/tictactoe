@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import confetti from 'canvas-confetti';
-import type { Cell, Difficulty, GameStatus, Player, GameMode } from '../types/game.types';
-import { checkWinner, createEmptyBoard } from '../utils/gameLogic';
+import type { BoardState, Difficulty, GameStatus, Player, GameMode } from '../types/game.types';
+import { checkWinner, createEmptyBoard, makeMove, getLowestFreeRow } from '../utils/gameLogic';
 import { getAIMove } from '../utils/aiPlayer';
 import { soundEffects } from '../utils/sounds';
 
@@ -11,13 +11,17 @@ interface UseGameLogicProps {
 
 export function useGameLogic(props?: UseGameLogicProps) {
   const { onGameEnd } = props || {};
-  const [board, setBoard] = useState<Cell[]>(createEmptyBoard());
-  const [currentPlayer, setCurrentPlayer] = useState<Player>('X');
+  const [board, setBoard] = useState<BoardState>(createEmptyBoard());
+  const [currentPlayer, setCurrentPlayer] = useState<Player>('RED');
   const [gameStatus, setGameStatus] = useState<GameStatus>('playing');
   const [winner, setWinner] = useState<Player | null>(null);
   const [winningLine, setWinningLine] = useState<number[] | null>(null);
   const [difficulty, setDifficulty] = useState<Difficulty>('medium');
   const [isAIThinking, setIsAIThinking] = useState(false);
+  
+  // Track last move for animation (currently unused but kept for future features)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [lastMove, setLastMove] = useState<{ col: number; row: number } | null>(null);
   
   // 2-Player mode support
   const [gameMode, setGameMode] = useState<GameMode>('ai');
@@ -26,13 +30,13 @@ export function useGameLogic(props?: UseGameLogicProps) {
   
   // Statistics tracking (persisted in localStorage)
   const [stats, setStats] = useState(() => {
-    const saved = localStorage.getItem('tictactoe-stats');
+    const saved = localStorage.getItem('connect-four-stats');
     return saved ? JSON.parse(saved) : { wins: 0, losses: 0, draws: 0 };
   });
 
   // Trigger confetti when player wins
   useEffect(() => {
-    if (gameStatus === 'won' && winner === 'X') {
+    if (gameStatus === 'won' && winner === 'RED') {
       // Celebrate player victory with confetti!
       const duration = 3000;
       const animationEnd = Date.now() + duration;
@@ -68,7 +72,7 @@ export function useGameLogic(props?: UseGameLogicProps) {
     }
   }, [gameStatus, winner]);
 
-  const checkGameOver = useCallback((newBoard: Cell[]) => {
+  const checkGameOver = useCallback((newBoard: BoardState) => {
     const result = checkWinner(newBoard);
     
     if (result.winner) {
@@ -80,7 +84,7 @@ export function useGameLogic(props?: UseGameLogicProps) {
         // Update stats
         const newStats = { ...stats, draws: stats.draws + 1 };
         setStats(newStats);
-        localStorage.setItem('tictactoe-stats', JSON.stringify(newStats));
+        localStorage.setItem('connect-four-stats', JSON.stringify(newStats));
         
         // Trigger enhanced stats update
         if (onGameEnd) {
@@ -96,14 +100,14 @@ export function useGameLogic(props?: UseGameLogicProps) {
         setWinningLine(result.line);
         
         // Update stats
-        const newStats = result.winner === 'X' 
+        const newStats = result.winner === 'RED' 
           ? { ...stats, wins: stats.wins + 1 }
           : { ...stats, losses: stats.losses + 1 };
         setStats(newStats);
-        localStorage.setItem('tictactoe-stats', JSON.stringify(newStats));
+        localStorage.setItem('connect-four-stats', JSON.stringify(newStats));
         
         // Play appropriate sound
-        if (result.winner === 'X') {
+        if (result.winner === 'RED') {
           soundEffects.playVictory();
         } else {
           soundEffects.playDefeat();
@@ -124,23 +128,29 @@ export function useGameLogic(props?: UseGameLogicProps) {
     return false;
   }, [stats, onGameEnd, gameMode, player1Name, player2Name]);
 
-  const makeAIMove = useCallback((currentBoard: Cell[]) => {
+  const makeAIMove = useCallback((currentBoard: BoardState) => {
     setIsAIThinking(true);
     
     // Add small delay for better UX (shows AI is "thinking")
     setTimeout(() => {
       try {
-        const aiMovePosition = getAIMove([...currentBoard], difficulty);
-        const newBoard = [...currentBoard];
-        newBoard[aiMovePosition] = 'O';
+        const aiMoveCol = getAIMove([...currentBoard], difficulty);
+        const row = getLowestFreeRow(currentBoard, aiMoveCol);
         
-        // Play click sound for AI move
-        soundEffects.playClick();
-        
-        setBoard(newBoard);
-        
-        if (!checkGameOver(newBoard)) {
-          setCurrentPlayer('X');
+        if (row !== null) {
+          const newBoard = makeMove(currentBoard, aiMoveCol, 'YELLOW');
+          
+          if (newBoard) {
+            // Play click sound for AI move
+            soundEffects.playClick();
+            
+            setBoard(newBoard);
+            setLastMove({ col: aiMoveCol, row });
+            
+            if (!checkGameOver(newBoard)) {
+              setCurrentPlayer('RED');
+            }
+          }
         }
       } catch (error) {
         console.error('AI move failed:', error);
@@ -150,14 +160,21 @@ export function useGameLogic(props?: UseGameLogicProps) {
     }, 300);
   }, [difficulty, checkGameOver]);
 
-  const handleCellClick = useCallback((index: number) => {
-    // Ignore clicks if game is over or cell is occupied
-    if (gameStatus !== 'playing' || board[index] !== null) {
+  const handleColumnClick = useCallback((col: number) => {
+    // Ignore clicks if game is over
+    if (gameStatus !== 'playing') {
       return;
     }
 
     // For AI mode: ignore if AI is thinking or not player's turn
-    if (gameMode === 'ai' && (isAIThinking || currentPlayer !== 'X')) {
+    if (gameMode === 'ai' && (isAIThinking || currentPlayer !== 'RED')) {
+      return;
+    }
+
+    // Try to make the move
+    const row = getLowestFreeRow(board, col);
+    if (row === null) {
+      // Column is full
       return;
     }
 
@@ -165,9 +182,13 @@ export function useGameLogic(props?: UseGameLogicProps) {
     soundEffects.playClick();
 
     // Make move
-    const newBoard = [...board];
-    newBoard[index] = currentPlayer;
+    const newBoard = makeMove(board, col, currentPlayer);
+    if (!newBoard) {
+      return;
+    }
+
     setBoard(newBoard);
+    setLastMove({ col, row });
 
     // Check if game over
     if (checkGameOver(newBoard)) {
@@ -175,22 +196,30 @@ export function useGameLogic(props?: UseGameLogicProps) {
     }
 
     // Switch player
-    const nextPlayer: Player = currentPlayer === 'X' ? 'O' : 'X';
+    const nextPlayer: Player = currentPlayer === 'RED' ? 'YELLOW' : 'RED';
     setCurrentPlayer(nextPlayer);
 
     // AI mode: let AI play
-    if (gameMode === 'ai' && nextPlayer === 'O') {
+    if (gameMode === 'ai' && nextPlayer === 'YELLOW') {
       makeAIMove(newBoard);
     }
   }, [board, currentPlayer, gameStatus, isAIThinking, checkGameOver, makeAIMove, gameMode]);
 
+  // Legacy support for old interface
+  const handleCellClick = useCallback((index: number) => {
+    // Convert index to column
+    const col = index % 7;
+    handleColumnClick(col);
+  }, [handleColumnClick]);
+
   const resetGame = useCallback(() => {
     setBoard(createEmptyBoard());
-    setCurrentPlayer('X');
+    setCurrentPlayer('RED');
     setGameStatus('playing');
     setWinner(null);
     setWinningLine(null);
     setIsAIThinking(false);
+    setLastMove(null);
   }, []);
 
   const changeDifficulty = useCallback((newDifficulty: Difficulty) => {
@@ -201,7 +230,7 @@ export function useGameLogic(props?: UseGameLogicProps) {
   const resetStats = useCallback(() => {
     const emptyStats = { wins: 0, losses: 0, draws: 0 };
     setStats(emptyStats);
-    localStorage.setItem('tictactoe-stats', JSON.stringify(emptyStats));
+    localStorage.setItem('connect-four-stats', JSON.stringify(emptyStats));
   }, []);
 
   const changeGameMode = useCallback((mode: GameMode) => {
@@ -222,6 +251,7 @@ export function useGameLogic(props?: UseGameLogicProps) {
     player1Name,
     player2Name,
     handleCellClick,
+    handleColumnClick,
     resetGame,
     changeDifficulty,
     resetStats,

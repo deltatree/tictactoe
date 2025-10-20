@@ -1,23 +1,42 @@
 import type { Cell as CellType } from '../types/game.types';
+import { ROWS, COLS, coordsToIndex } from '../types/game.types';
 import { Cell } from './Cell';
 import './Board.css';
 
 interface BoardProps {
   board: CellType[];
   winningLine: number[] | null;
-  onCellClick: (index: number) => void;
+  onColumnClick: (col: number) => void;
+  isInteractive: boolean;
 }
 
-export function Board({ board, winningLine, onCellClick }: BoardProps) {
+export function Board({ board, winningLine, onColumnClick, isInteractive }: BoardProps) {
+  const handleCellClick = (index: number) => {
+    if (!isInteractive) return;
+    
+    // Calculate column from index
+    const col = index % COLS;
+    onColumnClick(col);
+  };
+
   return (
-    <div className="board">
-      {board.map((cell, index) => (
-        <Cell
-          key={index}
-          value={cell}
-          onClick={() => onCellClick(index)}
-          isWinningCell={winningLine?.includes(index) || false}
-        />
+    <div className="board connect-four">
+      {Array.from({ length: ROWS }, (_, row) => (
+        <div key={row} className="board-row">
+          {Array.from({ length: COLS }, (_, col) => {
+            const index = coordsToIndex(row, col);
+            return (
+              <Cell
+                key={index}
+                value={board[index]}
+                onClick={() => handleCellClick(index)}
+                isWinningCell={winningLine?.includes(index) || false}
+                row={row}
+                isInteractive={isInteractive}
+              />
+            );
+          })}
+        </div>
       ))}
     </div>
   );

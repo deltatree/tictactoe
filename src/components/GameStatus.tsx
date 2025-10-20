@@ -27,27 +27,27 @@ export function GameStatus({
   const getPlayerName = (player: Player) => {
     if (gameMode === 'online') {
       // For online mode, use isYourTurn to determine correct name
-      if (player === yourSymbol) {
+      if (player === yourSymbol as any) {
         return 'Du';
       } else {
-        return player === 'X' ? player1Name : player2Name;
+        return player === 'RED' ? player1Name : player2Name;
       }
     }
     if (gameMode === 'local-2p') {
-      return player === 'X' 
-        ? (player1Name || 'Spieler 1') 
-        : (player2Name || 'Spieler 2');
+      return player === 'RED' 
+        ? (player1Name || 'Spieler 1 (Rot)') 
+        : (player2Name || 'Spieler 2 (Gelb)');
     }
-    return player === 'X' ? 'Du' : 'Computer';
+    return player === 'RED' ? 'Du (Rot)' : 'Computer (Gelb)';
   };
 
   const getStatusMessage = () => {
     if (gameStatus === 'won') {
       if (gameMode === 'local-2p' || gameMode === 'online') {
-        const winnerName = winner === 'X' ? getPlayerName('X') : getPlayerName('O');
+        const winnerName = winner ? getPlayerName(winner) : 'Unbekannt';
         return `🎉 ${winnerName} hat gewonnen! 🎉`;
       }
-      if (winner === 'X') {
+      if (winner === 'RED') {
         return '🎉 Du hast gewonnen! 🎉';
       }
       return '🤖 Computer hat gewonnen!';
@@ -59,7 +59,7 @@ export function GameStatus({
 
     if (gameMode === 'local-2p' || gameMode === 'online') {
       const currentName = getPlayerName(currentPlayer);
-      const symbol = currentPlayer === 'X' ? '✖️' : '⭕';
+      const symbol = currentPlayer === 'RED' ? '🔴' : '🟡';
       return `${symbol} ${currentName} ist dran!`;
     }
 
@@ -67,8 +67,8 @@ export function GameStatus({
       return '🤔 Computer ist dran...';
     }
 
-    if (currentPlayer === 'X') {
-      return '✨ Du bist dran! (X)';
+    if (currentPlayer === 'RED') {
+      return '✨ Du bist dran! 🔴';
     }
 
     return '🤖 Computer ist dran...';

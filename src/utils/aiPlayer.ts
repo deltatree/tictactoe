@@ -1,142 +1,243 @@
-import type { Cell, Difficulty, Player } from '../types/game.types';
-import { checkWinner, getEmptyCells } from './gameLogic';
+import type { BoardState, Difficulty, Player } from '../types/game.types';
+import { COLS, ROWS } from '../types/game.types';
+import { checkWin, getAvailableColumns, makeMove, isBoardFull, coordsToIndex } from './gameLogic';
 
-export function getAIMove(board: Cell[], difficulty: Difficulty): number {
-  const emptyCells = getEmptyCells(board);
+/**
+ * Main AI move function - returns the column to play
+ */
+export function getAIMove(board: BoardState, difficulty: Difficulty): number {
+  const availableColumns = getAvailableColumns(board);
   
-  if (emptyCells.length === 0) {
-    throw new Error('No empty cells available');
+  if (availableColumns.length === 0) {
+    throw new Error('No available columns');
   }
 
   switch (difficulty) {
     case 'easy':
-      return getEasyMove(board, emptyCells);
+      return findBestMove_Easy(board, availableColumns);
     case 'medium':
-      return getMediumMove(board, emptyCells);
+      return findBestMove_Medium(board, availableColumns);
     case 'hard':
-      return getHardMove(board);
+      return findBestMove_Hard(board, 'YELLOW');
     default:
-      return emptyCells[0];
+      return availableColumns[0];
   }
 }
 
-// Easy Mode: 70% random, 30% strategic
-function getEasyMove(board: Cell[], emptyCells: number[]): number {
-  const random = Math.random();
-  
-  // 70% of the time, make a random move
-  if (random < 0.7) {
-    return emptyCells[Math.floor(Math.random() * emptyCells.length)];
-  }
-  
-  // 30% strategic: 50% chance to win/block
-  const winMove = findWinningMove(board, 'O');
-  const blockMove = findWinningMove(board, 'X');
-  
-  if (winMove !== -1 && Math.random() < 0.5) {
-    return winMove;
-  }
-  
-  if (blockMove !== -1 && Math.random() < 0.5) {
-    return blockMove;
-  }
-  
-  // Otherwise random
-  return emptyCells[Math.floor(Math.random() * emptyCells.length)];
+// ===== STORY 3.1: AI Player (Easy) =====
+/**
+ * Easy AI: Makes random valid moves
+ */
+function findBestMove_Easy(_board: BoardState, availableColumns: number[]): number {
+  // Simply pick a random column
+  return availableColumns[Math.floor(Math.random() * availableColumns.length)];
 }
 
-// Medium Mode: Heuristic strategy
-function getMediumMove(board: Cell[], emptyCells: number[]): number {
-  // 1. Try to win
-  const winMove = findWinningMove(board, 'O');
-  if (winMove !== -1) return winMove;
-  
-  // 2. Block player from winning
-  const blockMove = findWinningMove(board, 'X');
-  if (blockMove !== -1) return blockMove;
-  
-  // 3. Take center if available (80% chance)
-  if (board[4] === null && Math.random() < 0.8) return 4;
-  
-  // 4. Take a corner (60% chance)
-  const corners = [0, 2, 6, 8].filter(pos => board[pos] === null);
-  if (corners.length > 0 && Math.random() < 0.6) {
-    return corners[Math.floor(Math.random() * corners.length)];
-  }
-  
-  // 5. Take any edge
-  return emptyCells[Math.floor(Math.random() * emptyCells.length)];
-}
-
-// Hard Mode: Minimax algorithm (unbeatable)
-function getHardMove(board: Cell[]): number {
+// ===== STORY 3.2: AI Player (Hard) - Minimax with Alpha-Beta Pruning =====
+/**
+ * Hard AI: Uses Minimax algorithm with alpha-beta pruning and heuristic evaluation
+ */
+function findBestMove_Hard(board: BoardState, aiPlayer: Player): number {
+  const availableColumns = getAvailableColumns(board);
   let bestScore = -Infinity;
-  let bestMove = -1;
+  let bestCol = availableColumns[0];
   
-  const emptyCells = getEmptyCells(board);
-  
-  for (const cell of emptyCells) {
-    // Make move
-    board[cell] = 'O';
-    const score = minimax(board, 0, false);
-    // Undo move
-    board[cell] = null;
-    
-    if (score > bestScore) {
-      bestScore = score;
-      bestMove = cell;
+  for (const col of availableColumns) {
+    const newBoard = makeMove(board, col, aiPlayer);
+    if (newBoard) {
+      const score = minimax(newBoard, 5, -Infinity, Infinity, false, aiPlayer);
+      
+      if (score > bestScore) {
+        bestScore = score;
+        bestCol = col;
+      }
     }
   }
   
-  return bestMove;
+  return bestCol;
 }
 
-function minimax(board: Cell[], depth: number, isMaximizing: boolean): number {
-  const result = checkWinner(board);
+/**
+ * Medium AI: Uses heuristics
+ */
+function findBestMove_Medium(board: BoardState, availableColumns: number[]): number {
+  const aiPlayer: Player = 'YELLOW';
+  const humanPlayer: Player = 'RED';
   
-  // Terminal states
-  if (result.winner === 'O') return 10 - depth; // AI wins (prefer faster wins)
-  if (result.winner === 'X') return depth - 10; // Player wins (prefer slower losses)
-  if (result.winner === 'draw') return 0; // Draw
+  // 1. Check if AI can win
+  for (const col of availableColumns) {
+    const testBoard = makeMove(board, col, aiPlayer);
+    if (testBoard && checkWin(testBoard, aiPlayer)) {
+      return col;
+    }
+  }
   
-  const emptyCells = getEmptyCells(board);
+  // 2. Block human from winning
+  for (const col of availableColumns) {
+    const testBoard = makeMove(board, col, humanPlayer);
+    if (testBoard && checkWin(testBoard, humanPlayer)) {
+      return col;
+    }
+  }
+  
+  // 3. Prefer center column
+  if (availableColumns.includes(3)) {
+    return 3;
+  }
+  
+  // 4. Choose column with best position
+  const columnScores = availableColumns.map(col => {
+    const testBoard = makeMove(board, col, aiPlayer);
+    return testBoard ? evaluateBoard(testBoard, aiPlayer) : -Infinity;
+  });
+  
+  const maxScore = Math.max(...columnScores);
+  const bestCols = availableColumns.filter((_, i) => columnScores[i] === maxScore);
+  
+  return bestCols[Math.floor(Math.random() * bestCols.length)];
+}
+
+/**
+ * Minimax algorithm with alpha-beta pruning
+ */
+function minimax(
+  board: BoardState,
+  depth: number,
+  alpha: number,
+  beta: number,
+  isMaximizing: boolean,
+  aiPlayer: Player
+): number {
+  const humanPlayer: Player = aiPlayer === 'RED' ? 'YELLOW' : 'RED';
+  
+  // Check terminal states
+  if (checkWin(board, aiPlayer)) return 1000 + depth;
+  if (checkWin(board, humanPlayer)) return -1000 - depth;
+  if (isBoardFull(board) || depth === 0) return evaluateBoard(board, aiPlayer);
+  
+  const availableColumns = getAvailableColumns(board);
   
   if (isMaximizing) {
-    // AI's turn (O)
-    let bestScore = -Infinity;
-    for (const cell of emptyCells) {
-      board[cell] = 'O';
-      const score = minimax(board, depth + 1, false);
-      board[cell] = null;
-      bestScore = Math.max(bestScore, score);
+    let maxEval = -Infinity;
+    for (const col of availableColumns) {
+      const newBoard = makeMove(board, col, aiPlayer);
+      if (newBoard) {
+        const evaluation = minimax(newBoard, depth - 1, alpha, beta, false, aiPlayer);
+        maxEval = Math.max(maxEval, evaluation);
+        alpha = Math.max(alpha, evaluation);
+        if (beta <= alpha) break; // Alpha-beta pruning
+      }
     }
-    return bestScore;
+    return maxEval;
   } else {
-    // Player's turn (X)
-    let bestScore = Infinity;
-    for (const cell of emptyCells) {
-      board[cell] = 'X';
-      const score = minimax(board, depth + 1, true);
-      board[cell] = null;
-      bestScore = Math.min(bestScore, score);
+    let minEval = Infinity;
+    for (const col of availableColumns) {
+      const newBoard = makeMove(board, col, humanPlayer);
+      if (newBoard) {
+        const evaluation = minimax(newBoard, depth - 1, alpha, beta, true, aiPlayer);
+        minEval = Math.min(minEval, evaluation);
+        beta = Math.min(beta, evaluation);
+        if (beta <= alpha) break; // Alpha-beta pruning
+      }
     }
-    return bestScore;
+    return minEval;
   }
 }
 
-// Helper: Find a move that would result in a win for the given player
-function findWinningMove(board: Cell[], player: Player): number {
-  const emptyCells = getEmptyCells(board);
+/**
+ * Heuristic evaluation function for Connect Four
+ */
+function evaluateBoard(board: BoardState, player: Player): number {
+  let score = 0;
+  const opponent: Player = player === 'RED' ? 'YELLOW' : 'RED';
   
-  for (const cell of emptyCells) {
-    board[cell] = player;
-    const result = checkWinner(board);
-    board[cell] = null;
-    
-    if (result.winner === player) {
-      return cell;
+  // Check all possible windows of 4
+  // Horizontal
+  for (let row = 0; row < ROWS; row++) {
+    for (let col = 0; col < COLS - 3; col++) {
+      const window = [
+        board[coordsToIndex(row, col)],
+        board[coordsToIndex(row, col + 1)],
+        board[coordsToIndex(row, col + 2)],
+        board[coordsToIndex(row, col + 3)],
+      ];
+      score += evaluateWindow(window, player, opponent);
     }
   }
   
-  return -1;
+  // Vertical
+  for (let row = 0; row < ROWS - 3; row++) {
+    for (let col = 0; col < COLS; col++) {
+      const window = [
+        board[coordsToIndex(row, col)],
+        board[coordsToIndex(row + 1, col)],
+        board[coordsToIndex(row + 2, col)],
+        board[coordsToIndex(row + 3, col)],
+      ];
+      score += evaluateWindow(window, player, opponent);
+    }
+  }
+  
+  // Diagonal (down-right)
+  for (let row = 0; row < ROWS - 3; row++) {
+    for (let col = 0; col < COLS - 3; col++) {
+      const window = [
+        board[coordsToIndex(row, col)],
+        board[coordsToIndex(row + 1, col + 1)],
+        board[coordsToIndex(row + 2, col + 2)],
+        board[coordsToIndex(row + 3, col + 3)],
+      ];
+      score += evaluateWindow(window, player, opponent);
+    }
+  }
+  
+  // Diagonal (down-left)
+  for (let row = 0; row < ROWS - 3; row++) {
+    for (let col = 3; col < COLS; col++) {
+      const window = [
+        board[coordsToIndex(row, col)],
+        board[coordsToIndex(row + 1, col - 1)],
+        board[coordsToIndex(row + 2, col - 2)],
+        board[coordsToIndex(row + 3, col - 3)],
+      ];
+      score += evaluateWindow(window, player, opponent);
+    }
+  }
+  
+  // Bonus for center column control
+  const centerCol = 3;
+  for (let row = 0; row < ROWS; row++) {
+    if (board[coordsToIndex(row, centerCol)] === player) {
+      score += 3;
+    }
+  }
+  
+  return score;
+}
+
+/**
+ * Evaluate a window of 4 cells
+ */
+function evaluateWindow(window: (Player | null)[], player: Player, opponent: Player): number {
+  let score = 0;
+  
+  const playerCount = window.filter(c => c === player).length;
+  const opponentCount = window.filter(c => c === opponent).length;
+  const emptyCount = window.filter(c => c === null).length;
+  
+  // Scoring logic
+  if (playerCount === 4) {
+    score += 100; // Four in a row
+  } else if (playerCount === 3 && emptyCount === 1) {
+    score += 5; // Three in a row with one empty
+  } else if (playerCount === 2 && emptyCount === 2) {
+    score += 2; // Two in a row with two empty
+  }
+  
+  // Penalize opponent opportunities
+  if (opponentCount === 3 && emptyCount === 1) {
+    score -= 4; // Opponent has three in a row
+  }
+  
+  return score;
 }

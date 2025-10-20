@@ -1,21 +1,21 @@
 import type { GameState, Player, Cell } from '../types';
-import { checkWinner, createEmptyBoard, isValidMove } from './gameLogic';
+import { checkWinner, createEmptyBoard, isValidMove, getLowestFreeRow, coordsToIndex } from './gameLogic';
 import { randomUUID } from 'crypto';
 
 export class Game {
   private state: GameState;
 
-  constructor(playerXId: string, playerOId: string) {
+  constructor(playerRedId: string, playerYellowId: string) {
     this.state = {
       id: randomUUID(),
       board: createEmptyBoard(),
-      currentPlayer: 'X',
+      currentPlayer: 'RED',
       status: 'playing',
       winner: null,
       winningLine: null,
       players: {
-        X: playerXId,
-        O: playerOId,
+        RED: playerRedId,
+        YELLOW: playerYellowId,
       },
       createdAt: Date.now(),
       lastMoveAt: Date.now(),
@@ -31,16 +31,16 @@ export class Game {
   }
 
   public getPlayerRole(socketId: string): Player | null {
-    if (this.state.players.X === socketId) return 'X';
-    if (this.state.players.O === socketId) return 'O';
+    if (this.state.players.RED === socketId) return 'RED';
+    if (this.state.players.YELLOW === socketId) return 'YELLOW';
     return null;
   }
 
   public hasPlayer(socketId: string): boolean {
-    return this.state.players.X === socketId || this.state.players.O === socketId;
+    return this.state.players.RED === socketId || this.state.players.YELLOW === socketId;
   }
 
-  public makeMove(socketId: string, position: number): { success: boolean; error?: string } {
+  public makeMove(socketId: string, column: number): { success: boolean; error?: string } {
     // Validate it's the player's turn
     const playerRole = this.getPlayerRole(socketId);
     if (!playerRole) {
@@ -48,12 +48,12 @@ export class Game {
       return { success: false, error: 'Player not in this game' };
     }
 
-    console.log('🎮 Backend makeMove:', {
+    console.log('🎮 Backend makeMove (Connect Four):', {
       gameId: this.state.id,
       socketId,
       playerRole,
       currentPlayer: this.state.currentPlayer,
-      position,
+      column,
       board: this.state.board.filter(c => c !== null).length + ' moves',
       players: this.state.players
     });
@@ -72,12 +72,19 @@ export class Game {
       return { success: false, error: 'Game is not active' };
     }
 
-    // Validate move
-    if (!isValidMove(this.state.board, position)) {
-      return { success: false, error: 'Invalid move' };
+    // Validate move (column)
+    if (!isValidMove(this.state.board, column)) {
+      return { success: false, error: 'Invalid move - column full or out of range' };
+    }
+
+    // Find lowest free row in column
+    const row = getLowestFreeRow(this.state.board, column);
+    if (row === null) {
+      return { success: false, error: 'Column is full' };
     }
 
     // Make move
+    const position = coordsToIndex(row, column);
     const newBoard: Cell[] = [...this.state.board];
     newBoard[position] = playerRole;
     this.state.board = newBoard;
@@ -93,7 +100,7 @@ export class Game {
     } else {
       // Switch player
       const oldPlayer = this.state.currentPlayer;
-      this.state.currentPlayer = this.state.currentPlayer === 'X' ? 'O' : 'X';
+      this.state.currentPlayer = this.state.currentPlayer === 'RED' ? 'YELLOW' : 'RED';
       console.log('🔄 Turn switched:', {
         from: oldPlayer,
         to: this.state.currentPlayer,
@@ -110,7 +117,7 @@ export class Game {
       // The other player wins
       const leavingPlayer = this.getPlayerRole(socketId);
       if (leavingPlayer) {
-        this.state.winner = leavingPlayer === 'X' ? 'O' : 'X';
+        this.state.winner = leavingPlayer === 'RED' ? 'YELLOW' : 'RED';
       }
     }
   }

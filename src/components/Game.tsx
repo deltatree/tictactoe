@@ -49,14 +49,14 @@ export function Game() {
       // Adapter: Convert useGameLogic format to recordGame format
       const { winner, player2 } = result;
       
-      // Determine result from player's perspective (always player1)
+      // Determine result from player's perspective (RED is always player1)
       let gameResult: 'win' | 'loss' | 'draw';
       if (winner === 'draw') {
         gameResult = 'draw';
-      } else if (winner === 'X') {
-        gameResult = 'win';  // Player is always X
+      } else if (winner === 'RED') {
+        gameResult = 'win';  // Player is always RED
       } else {
-        gameResult = 'loss'; // O means opponent won
+        gameResult = 'loss'; // YELLOW means opponent won
       }
       
       // Use correct opponent name: for online games, use opponentName from online game
@@ -68,8 +68,8 @@ export function Game() {
         gameMode,
         gameResult,
         opponentName, // Real opponent name for online, player2 for AI/local
-        'X',          // Player is always X
-        'O'           // Opponent is always O
+        'RED',        // Player is always RED
+        'YELLOW'      // Opponent is always YELLOW
       );
     },
   });
@@ -241,7 +241,7 @@ export function Game() {
       {gameMode === 'online' && <ConnectionStatus />}
 
       <header className="game-header">
-        <h1>🎮 Tic-Tac-Toe 🎮</h1>
+        <h1>🎮 Vier Gewinnt / Connect Four 🎮</h1>
         <p className="subtitle">
           {gameMode === 'ai' && 'Spiele gegen den Computer!'}
           {gameMode === 'local-2p' && 'Lokaler 2-Spieler Modus'}
@@ -294,8 +294,8 @@ export function Game() {
             <>
               <GameStatus
                 gameStatus={activeOnlineGame.gameStatus}
-                currentPlayer={activeOnlineGame.currentPlayer}
-                winner={activeOnlineGame.winner}
+                currentPlayer={activeOnlineGame.currentPlayer as any}
+                winner={activeOnlineGame.winner as any}
                 isAIThinking={false}
                 gameMode="online"
                 player1Name={activeOnlineGame.yourSymbol === 'X' ? 'Du' : activeOnlineGame.opponentName}
@@ -307,7 +307,8 @@ export function Game() {
               <Board 
                 board={activeOnlineGame.board} 
                 winningLine={activeOnlineGame.winningLine} 
-                onCellClick={activeOnlineGame.handleCellClick}
+                onColumnClick={activeOnlineGame.handleCellClick}
+                isInteractive={activeOnlineGame.isYourTurn && activeOnlineGame.gameStatus === 'playing'}
               />
 
               {activeOnlineGame.gameStatus !== 'playing' && (
@@ -379,7 +380,12 @@ export function Game() {
                 player2Name={player2Name}
               />
 
-              <Board board={board} winningLine={winningLine} onCellClick={handleCellClick} />
+              <Board 
+                board={board} 
+                winningLine={winningLine} 
+                onColumnClick={handleCellClick} 
+                isInteractive={gameStatus === 'playing' && !isAIThinking}
+              />
 
               <button className="new-game-button" onClick={resetGame}>
                 🔄 Neues Spiel

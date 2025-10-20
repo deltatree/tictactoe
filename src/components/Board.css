@@ -10,6 +10,22 @@
   margin: 0 auto;
 }
 
+/* Connect Four Board (7x6 Grid) */
+.board.connect-four {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 20px;
+  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(37, 99, 235, 0.3);
+}
+
+.board-row {
+  display: flex;
+  gap: 0;
+}
+
 /* Tablet breakpoint */
 @media (max-width: 768px) {
   .board {
