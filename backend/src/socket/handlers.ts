@@ -66,9 +66,9 @@ export function setupSocketHandlers(
 
       // Find opponent socket ID
       const gameState = game.getState();
-      const opponentId = gameState.players.X === socket.id 
-        ? gameState.players.O 
-        : gameState.players.X;
+      const opponentId = gameState.players.RED === socket.id 
+        ? gameState.players.YELLOW 
+        : gameState.players.RED;
 
       // Notify opponent of confirmed player name
       io.to(opponentId).emit('opponent-name-updated', {
@@ -157,9 +157,9 @@ export function setupSocketHandlers(
 
       // Get opponent socket ID
       const gameState = game.getState();
-      const opponentId = gameState.players.X === socket.id 
-        ? gameState.players.O 
-        : gameState.players.X;
+      const opponentId = gameState.players.RED === socket.id 
+        ? gameState.players.YELLOW 
+        : gameState.players.RED;
 
       // Notify opponent about rematch request
       io.to(opponentId).emit('rematch-request', {

@@ -32,8 +32,8 @@ export class GameManager {
     const game = this.games.get(gameId);
     if (game) {
       const state = game.getState();
-      this.playerToGame.delete(state.players.X);
-      this.playerToGame.delete(state.players.O);
+      this.playerToGame.delete(state.players.RED);
+      this.playerToGame.delete(state.players.YELLOW);
       this.games.delete(gameId);
       console.log(`🗑️  Game ${gameId} removed`);
     }
