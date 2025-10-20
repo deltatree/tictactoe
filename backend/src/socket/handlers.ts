@@ -26,7 +26,7 @@ export function setupSocketHandlers(
         // Notify both players
         io.to(match.player1).emit('game-found', {
           gameId: gameState.id,
-          yourSymbol: 'X',
+          yourSymbol: 'RED',
           opponent: {
             id: match.player2,
             name: match.player2Name || 'Anonymous'
@@ -36,7 +36,7 @@ export function setupSocketHandlers(
 
         io.to(match.player2).emit('game-found', {
           gameId: gameState.id,
-          yourSymbol: 'O',
+          yourSymbol: 'YELLOW',
           opponent: {
             id: match.player1,
             name: match.player1Name || 'Anonymous'
@@ -191,7 +191,7 @@ export function setupSocketHandlers(
       // Notify both players with correct opponent names
       io.to(data.requesterId).emit('rematch-accepted', {
         gameId: newGameState.id,
-        yourSymbol: 'X',
+        yourSymbol: 'RED',
         opponent: {
           id: socket.id,
           name: data.playerName || 'Anonymous'
@@ -201,7 +201,7 @@ export function setupSocketHandlers(
 
       io.to(socket.id).emit('rematch-accepted', {
         gameId: newGameState.id,
-        yourSymbol: 'O',
+        yourSymbol: 'YELLOW',
         opponent: {
           id: data.requesterId,
           name: data.requesterName || 'Anonymous'

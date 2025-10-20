@@ -5,16 +5,16 @@ export class GameManager {
   private playerToGame: Map<string, string> = new Map(); // socketId -> gameId
   private totalGamesPlayed: number = 0;
 
-  public createGame(playerXId: string, playerOId: string): Game {
-    const game = new Game(playerXId, playerOId);
+  public createGame(playerRedId: string, playerYellowId: string): Game {
+    const game = new Game(playerRedId, playerYellowId);
     const gameId = game.getId();
 
     this.games.set(gameId, game);
-    this.playerToGame.set(playerXId, gameId);
-    this.playerToGame.set(playerOId, gameId);
+    this.playerToGame.set(playerRedId, gameId);
+    this.playerToGame.set(playerYellowId, gameId);
     this.totalGamesPlayed++;
 
-    console.log(`✅ Game ${gameId} created: ${playerXId} vs ${playerOId}`);
+    console.log(`✅ Game ${gameId} created: ${playerRedId} vs ${playerYellowId}`);
     return game;
   }
 
