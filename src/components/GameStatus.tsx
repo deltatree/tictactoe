@@ -10,7 +10,7 @@ interface GameStatusProps {
   player1Name?: string;
   player2Name?: string;
   isYourTurn?: boolean;
-  yourSymbol?: 'X' | 'O';
+  yourSymbol?: Player;
 }
 
 export function GameStatus({ 
@@ -22,12 +22,12 @@ export function GameStatus({
   player1Name = '',
   player2Name = '',
   isYourTurn: _isYourTurn = false,
-  yourSymbol = 'X'
+  yourSymbol = 'RED'
 }: GameStatusProps) {
   const getPlayerName = (player: Player) => {
     if (gameMode === 'online') {
-      // For online mode, use isYourTurn to determine correct name
-      if (player === yourSymbol as any) {
+      // For online mode, use yourSymbol to determine correct name
+      if (player === yourSymbol) {
         return 'Du';
       } else {
         return player === 'RED' ? player1Name : player2Name;

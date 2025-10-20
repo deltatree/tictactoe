@@ -18,6 +18,7 @@ import { useOnlineGame } from '../hooks/useOnlineGame';
 import { useEnhancedStats } from '../hooks/useEnhancedStats';
 import { soundEffects } from '../utils/sounds';
 import { useWebSocket } from '../context/WebSocketContext';
+import type { Player } from '../types/game.types';
 import './Game.css';
 
 export function Game() {
@@ -90,7 +91,7 @@ export function Game() {
   const [onlineGameData, setOnlineGameData] = useState<{
     gameId: string;
     opponentName: string;
-    yourSymbol: 'X' | 'O';
+    yourSymbol: Player;
   } | null>(null);
 
   // Load mute state from localStorage on mount
@@ -151,7 +152,7 @@ export function Game() {
   const handleMatchFound = (data: {
     gameId: string;
     opponentName: string;
-    yourSymbol: 'X' | 'O';
+    yourSymbol: Player;
   }) => {
     console.log('Match found!', data);
     setOnlineGameData(data);
@@ -189,7 +190,7 @@ export function Game() {
 
     const handleRematchAccepted = (data: {
       gameId: string;
-      yourSymbol: 'X' | 'O';
+      yourSymbol: Player;
       opponent: { name: string };
     }) => {
       console.log('Rematch accepted, starting new game:', data);
@@ -228,7 +229,7 @@ export function Game() {
   // Pass null values when not in online game, hook will handle it
   const onlineGame = useOnlineGame(
     onlineGameData?.gameId || '',
-    onlineGameData?.yourSymbol || 'X',
+    onlineGameData?.yourSymbol || 'RED',
     onlineGameData?.opponentName || ''
   );
 
@@ -298,8 +299,8 @@ export function Game() {
                 winner={activeOnlineGame.winner as any}
                 isAIThinking={false}
                 gameMode="online"
-                player1Name={activeOnlineGame.yourSymbol === 'X' ? 'Du' : activeOnlineGame.opponentName}
-                player2Name={activeOnlineGame.yourSymbol === 'O' ? 'Du' : activeOnlineGame.opponentName}
+                player1Name={activeOnlineGame.yourSymbol === 'RED' ? 'Du' : activeOnlineGame.opponentName}
+                player2Name={activeOnlineGame.yourSymbol === 'YELLOW' ? 'Du' : activeOnlineGame.opponentName}
                 isYourTurn={activeOnlineGame.isYourTurn}
                 yourSymbol={activeOnlineGame.yourSymbol}
               />

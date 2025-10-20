@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useWebSocket } from '../context/WebSocketContext';
-import type { Cell } from '../types/game.types';
+import type { Cell, Player } from '../types/game.types';
 import type { ChatMessage } from '../types/chat.types';
 import { QUICK_MESSAGES } from '../types/chat.types';
 import { soundEffects } from '../utils/sounds';
@@ -8,11 +8,11 @@ import { soundEffects } from '../utils/sounds';
 interface OnlineGameState {
   gameId: string;
   board: Cell[];
-  currentPlayer: 'X' | 'O';
-  yourSymbol: 'X' | 'O';
+  currentPlayer: Player;
+  yourSymbol: Player;
   opponentName: string;
   gameStatus: 'playing' | 'won' | 'draw';
-  winner: 'X' | 'O' | null;
+  winner: Player | null;
   winningLine: number[] | null;
   isYourTurn: boolean;
   chatMessages: ChatMessage[];
@@ -31,7 +31,7 @@ interface UseOnlineGameReturn extends OnlineGameState {
 
 export function useOnlineGame(
   gameId: string,
-  yourSymbol: 'X' | 'O',
+  yourSymbol: Player,
   opponentName: string
 ): UseOnlineGameReturn {
   const { emit, on, off, socket } = useWebSocket();
@@ -39,10 +39,10 @@ export function useOnlineGame(
   // If no gameId, we're not in an online game yet - return early with defaults
   const isActive = Boolean(gameId);
 
-  const [board, setBoard] = useState<Cell[]>(Array(9).fill(null));
-  const [currentPlayer, setCurrentPlayer] = useState<'X' | 'O'>('X');
+  const [board, setBoard] = useState<Cell[]>(Array(42).fill(null));
+  const [currentPlayer, setCurrentPlayer] = useState<Player>('RED');
   const [gameStatus, setGameStatus] = useState<'playing' | 'won' | 'draw'>('playing');
-  const [winner, setWinner] = useState<'X' | 'O' | null>(null);
+  const [winner, setWinner] = useState<Player | null>(null);
   const [winningLine, setWinningLine] = useState<number[] | null>(null);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [rematchStatus, setRematchStatus] = useState<'none' | 'requested' | 'pending' | 'accepted' | 'declined'>('none');
@@ -74,8 +74,8 @@ export function useOnlineGame(
       });
       
       // Reset all game state
-      setBoard(Array(9).fill(null));
-      setCurrentPlayer('X');
+      setBoard(Array(42).fill(null));
+      setCurrentPlayer('RED');
       setGameStatus('playing');
       setWinner(null);
       setWinningLine(null);
@@ -95,9 +95,9 @@ export function useOnlineGame(
     const handleGameUpdate = (data: {
       gameState: {
         board: Cell[];
-        currentPlayer: 'X' | 'O';
+        currentPlayer: Player;
         status: 'playing' | 'won' | 'draw';
-        winner: 'X' | 'O' | null;
+        winner: Player | null;
         winningLine: number[] | null;
       };
     }) => {
@@ -106,9 +106,9 @@ export function useOnlineGame(
       const { board, currentPlayer, status, winner, winningLine } = data.gameState;
       
       setBoard(board);
-      setCurrentPlayer(currentPlayer);
+      setCurrentPlayer(currentPlayer as Player);
       setGameStatus(status);
-      setWinner(winner);
+      setWinner(winner as Player | null);
       setWinningLine(winningLine);
 
       // Play sound effects
@@ -272,7 +272,7 @@ export function useOnlineGame(
 
     const handleRematchAccepted = (data: {
       gameId: string;
-      yourSymbol: 'X' | 'O';
+      yourSymbol: Player;
       opponent: { name: string };
     }) => {
       console.log('Rematch accepted:', data);

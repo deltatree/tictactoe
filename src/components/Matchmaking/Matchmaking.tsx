@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useWebSocket } from '../../context/WebSocketContext';
+import type { Player } from '../../types/game.types';
 import './Matchmaking.css';
 
 interface MatchmakingProps {
@@ -7,8 +8,8 @@ interface MatchmakingProps {
   onMatchFound: (gameData: {
     gameId: string;
     opponentName: string;
-    yourSymbol: 'X' | 'O';
-    opponentSymbol: 'X' | 'O';
+    yourSymbol: Player;
+    opponentSymbol: Player;
   }) => void;
   onCancel: () => void;
   onNameConfirmed?: () => void;
@@ -22,7 +23,7 @@ const Matchmaking: React.FC<MatchmakingProps> = ({ playerName, onMatchFound, onC
   const [matchData, setMatchData] = useState<{
     gameId: string;
     opponent: { name: string };
-    yourSymbol: 'X' | 'O';
+    yourSymbol: Player;
   } | null>(null);
   const [waitingForConfirmation, setWaitingForConfirmation] = useState<boolean>(false);
 
@@ -39,7 +40,7 @@ const Matchmaking: React.FC<MatchmakingProps> = ({ playerName, onMatchFound, onC
     const handleGameFound = (data: {
       gameId: string;
       opponent: { name: string };
-      yourSymbol: 'X' | 'O';
+      yourSymbol: Player;
     }) => {
       console.log('Matchmaking: Game found!', data);
       
@@ -139,7 +140,7 @@ const Matchmaking: React.FC<MatchmakingProps> = ({ playerName, onMatchFound, onC
           gameId: matchData.gameId,
           opponentName: opponentName,
           yourSymbol: matchData.yourSymbol,
-          opponentSymbol: matchData.yourSymbol === 'X' ? 'O' : 'X'
+          opponentSymbol: matchData.yourSymbol === 'RED' ? 'YELLOW' : 'RED'
         });
       }
     }, 1000);
