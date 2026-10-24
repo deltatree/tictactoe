@@ -1,6 +1,6 @@
 # Multi-stage build: Frontend + Backend in one image
 # Stage 1: Build Frontend
-FROM node:20-alpine AS frontend-builder
+FROM node:22.23.4-alpine3.24 AS frontend-builder
 
 WORKDIR /app
 
@@ -17,7 +17,7 @@ COPY . .
 RUN npm run build
 
 # Stage 2: Build Backend
-FROM node:20-alpine AS backend-builder
+FROM node:22.23.4-alpine3.24 AS backend-builder
 
 WORKDIR /app
 
@@ -35,7 +35,7 @@ COPY backend/src ./src
 RUN npx tsc
 
 # Stage 3: Production image with Node.js (runs both frontend via nginx and backend)
-FROM node:20-alpine
+FROM node:22.23.4-alpine3.24
 
 # Install nginx and supervisor for running both services
 RUN apk add --no-cache nginx supervisor wget
